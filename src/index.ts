@@ -9,7 +9,7 @@ viewer1.addModel(`/3DGS.ply`);
 // viewer1.addModel(`https://reall3d.com/demo-models/yz.spx`);
 
 // const viewer2 = new Reall3dViewer({ root: '#viewer2', enableKeyboard: true, background: '#676767' });
-// viewer2.addModel(`/3DGS.ply`);
+// viewer2.addModel(`/Tiggo ply.ply`);
 
 // const mapViewer = new Reall3dMapViewer({ root: '#viewer3' });
 // mapViewer.addScenes('/3DGS.ply');
