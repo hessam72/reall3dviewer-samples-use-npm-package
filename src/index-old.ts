@@ -1,5 +1,5 @@
 // import '@reall3d/reall3dviewer/dist/style.css';
-import 'virtual:svg-icons-register';
+// import 'virtual:svg-icons-register';
 import { Reall3dMapViewer, Reall3dViewer, SplatMesh } from '@reall3d/reall3dviewer';
 import { Color, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
 import { OrbitControls } from 'three/examples/jsm/Addons.js';
