@@ -10,7 +10,7 @@
         "next_build": "next build",
         "start": "next start",
         "pm2-stop": "pm2 kill",
-        "pm2-start": "pm2 start ecosystem.config.js",
+        "pm2-start": "pm2 start ecosystem.config.cjs",
         "deploy": "npm run next_build && npm run pm2-start"
     },
     "dependencies": {
