@@ -1,79 +1,98 @@
 // components/Reall3d.js
-import { useEffect, useRef } from 'react';
-// import '@reall3d/reall3dviewer/dist/style.css';
-// import img from 'virtual:svg-icons-register';
-import { Reall3dViewer, SplatMesh } from '@reall3d/reall3dviewer';
-import { WebGLRenderer } from 'three';
-// import { Scene, Node } from 'reall3d-viewer';
+'use client';
 
-// import { Color, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
-// import { OrbitControls } from 'three/examples/jsm/Addons.js';
+import React, { useEffect, useRef, useState } from 'react';
+import { Reall3dViewer } from '@reall3d/reall3dviewer';
+import '@reall3d/reall3dviewer/dist/style.css';
 
 export default function Reall3d() {
-    const container = useRef(null);
-    const myScene = {
-        // If you also want to clear any environment lighting, you can null that too:
-        environmentNode: null,
-        // Remove any background (transparent canvas)
-        backgroundNode: null,
-        // Keep fog disabled or set to null
-        fogNode: null,
-    };
+    const containerRef = useRef(null);
+    const viewerRef = useRef(null);
 
-    // …inside your useEffect, before new Reall3dViewer…
-    const renderer = new WebGLRenderer({
-        antialias: true,
-        alpha: true, // <— allow transparency
-    });
+    // URLs for the two PLY models
+    const MODEL_B = '/3DGS.ply';
+    const MODEL_A = '/new_3DGS.ply';
+    const [modelUrl, setModelUrl] = useState(MODEL_A);
 
+    // Re-initialize viewer whenever modelUrl changes
     useEffect(() => {
-        if (!container.current) return;
-        const isMobile = /Mobi|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
-        const fov = isMobile ? 30 : 20;
-        // renderer.setPixelRatio(window.devicePixelRatio);
-        // renderer.setSize(container.current.clientWidth, container.current.clientHeight);
-        // // ensure the CSS canvas background is transparent
-        renderer.domElement.style.background = 'transparent';
-        // alert('help');
-        // @ts-ignore
-        // dynamic import to avoid SSR issues
+        const container = containerRef.current;
+        if (!container) return;
 
-        const viewer1 = new Reall3dViewer({
-            root: container.current,
+        // Remove previous content (canvas, etc.)
+        container.innerHTML = '';
+
+        // Clean up previous viewer instance
+        if (viewerRef.current) {
+            const prev = viewerRef.current;
+            if (typeof prev.destroy === 'function') prev.destroy();
+            else if (typeof prev.dispose === 'function') prev.dispose();
+            // else no cleanup method available
+            viewerRef.current = null;
+        }
+
+        // Instantiate a new viewer
+        const viewer = new Reall3dViewer({
+            root: container,
             shDegree: 3,
             position: [0, -5, 15],
-            fov,
-            enableKeyboard: true,
-            lightFactor: 40,
+            fov: window.innerWidth < 768 ? 30 : 20,
             pointcloudMode: true,
             alpha: true,
             antialias: true,
-            // markMode: true,
-            // markType: 'plans',
-            // maxRenderCountOfPc: 10000,
-            background: '#1f2328',
-            // background: '#ff00005e',
-            enableKeyboard: false,
-            // background: 'transparent',
-            // scene: myScene,
-            // renderer,
             turntable: true,
-            // maxPolarAngle: 4,
+            enableKeyboard: false,
         });
-        viewer1.backgroundNode = null;
-        viewer1.environmentNode = null;
-        console.log('renderer: ', viewer1);
-        // viewer1.renderer.antialias = true;
-        // viewer1.renderer.alpha = true;
-        // viewer1.renderer.domElement.style.background = 'transparent';
 
-        viewer1.addModel('/3DGS.ply');
+        // Remove default environment and background nodes
+        viewer.environmentNode = null;
+        viewer.backgroundNode = null;
 
-        // Cleanup function
+        // Load the selected PLY model
+        viewer.addModel(modelUrl).catch(err => console.error('PLY loading error:', err));
+
+        // Store viewer instance in ref
+        viewerRef.current = viewer;
+
+        // Cleanup on component unmount
         return () => {
-            viewer1?.destroy?.();
+            const curr = viewerRef.current;
+            if (curr) {
+                if (typeof curr.destroy === 'function') curr.destroy();
+                else if (typeof curr.dispose === 'function') curr.dispose();
+            }
+            viewerRef.current = null;
+            container.innerHTML = '';
         };
-    }, []);
+    }, [modelUrl]);
 
-    return <div id="viewer1" ref={container} />;
+    // Toggle between models
+    const handleSwitch = () => {
+        setModelUrl(prev => (prev === MODEL_A ? MODEL_B : MODEL_A));
+    };
+
+    return (
+        <>
+            {/* Toggle button */}
+            <button
+                onClick={handleSwitch}
+                style={{
+                    position: 'absolute',
+                    top: 16,
+                    right: 16,
+                    padding: '8px 12px',
+                    background: '#000',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 4,
+                    cursor: 'pointer',
+                }}
+            >
+                مدل بعدی
+            </button>
+
+            {/* Viewer container */}
+            <div id="viewer1" ref={containerRef} style={{ width: '100%', height: '100%', overflow: 'hidden' }} />
+        </>
+    );
 }
