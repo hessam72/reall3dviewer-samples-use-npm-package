@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 // import '@reall3d/reall3dviewer/dist/style.css';
 // import img from 'virtual:svg-icons-register';
 import { Reall3dViewer, SplatMesh } from '@reall3d/reall3dviewer';
+import { WebGLRenderer } from 'three';
 // import { Scene, Node } from 'reall3d-viewer';
 
 // import { Color, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
@@ -18,11 +19,21 @@ export default function Reall3d() {
         // Keep fog disabled or set to null
         fogNode: null,
     };
+
+    // …inside your useEffect, before new Reall3dViewer…
+    const renderer = new WebGLRenderer({
+        antialias: true,
+        alpha: true, // <— allow transparency
+    });
+
     useEffect(() => {
         if (!container.current) return;
         const isMobile = /Mobi|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
         const fov = isMobile ? 30 : 20;
-
+        // renderer.setPixelRatio(window.devicePixelRatio);
+        // renderer.setSize(container.current.clientWidth, container.current.clientHeight);
+        // // ensure the CSS canvas background is transparent
+        renderer.domElement.style.background = 'transparent';
         // alert('help');
         // @ts-ignore
         // dynamic import to avoid SSR issues
@@ -35,18 +46,27 @@ export default function Reall3d() {
             enableKeyboard: true,
             lightFactor: 40,
             pointcloudMode: true,
+            alpha: true,
+            antialias: true,
             // markMode: true,
             // markType: 'plans',
             // maxRenderCountOfPc: 10000,
             background: '#1f2328',
-
+            // background: '#ff00005e',
+            enableKeyboard: false,
+            // background: 'transparent',
             // scene: myScene,
-            renderer: undefined, // let the viewer make its own WebGLRenderer
+            // renderer,
             turntable: true,
             // maxPolarAngle: 4,
         });
         viewer1.backgroundNode = null;
         viewer1.environmentNode = null;
+        console.log('renderer: ', viewer1);
+        // viewer1.renderer.antialias = true;
+        // viewer1.renderer.alpha = true;
+        // viewer1.renderer.domElement.style.background = 'transparent';
+
         viewer1.addModel('/3DGS.ply');
 
         // Cleanup function
@@ -55,5 +75,5 @@ export default function Reall3d() {
         };
     }, []);
 
-    return <div id="viewer1" ref={container} style={{ width: '100%', height: '100%' }} />;
+    return <div id="viewer1" ref={container} />;
 }

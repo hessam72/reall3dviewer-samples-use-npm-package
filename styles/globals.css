@@ -28,12 +28,12 @@
 }
 
 body {
-    background-color: red;
+    background-color: rgb(69, 10, 219);
     color: var(--text-color);
 }
 body {
     color: var(--foreground);
-    background: var(--background);
+    /* background: var(--background); */
     font-family: 'Vazir' !important;
     /* font-family: "Baloo Bhaijaan 2"; */
     font-optical-sizing: auto;
@@ -45,4 +45,21 @@ body {
     .text-balance {
         text-wrap: balance;
     }
+}
+
+#viewer1 {
+    width: 100% !important;
+    height: 100% !important;
+    /* width: 50vw;
+    height: 50vh; */
+    /* margin: auto;
+    position: absolute;
+    left: 0;
+    right: 0; */
+    /* top: 25vh; */
+}
+.gsviewer-canvas {
+    width: 100% !important;
+    height: 100% !important;
+    /* background: red !important; */
 }
