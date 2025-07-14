@@ -1,0 +1,24 @@
+
+html {
+    scrollbar-color: #b5075b #00000000; /* thumb color, track color */
+    scrollbar-width: thin; /* width: auto, thin, or none */
+}
+::-webkit-scrollbar {
+    width: 10px; /* Set the scrollbar width */
+}
+
+
+::-webkit-scrollbar-track {
+    background: #00000000;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(to right, #ff6a00, #ee0979); /* Gradient color */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #000; /* Change color on hover */
+}
+

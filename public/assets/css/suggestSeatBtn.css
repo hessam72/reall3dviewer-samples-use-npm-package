@@ -1,0 +1,34 @@
+.icon-left, .icon-right {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+}
+
+.icon-left {
+  left: 0;
+  cursor: pointer;
+  padding-left: 20px;
+}
+
+.icon-right {
+  right: 0;
+  cursor: pointer;
+  padding-right: 20px;
+}
+
+.disabled-icon{
+  color: #aaa;
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 800px) {
+
+  .icon-left, .icon-right {
+
+    top: 40%;
+  }
+
+
+}

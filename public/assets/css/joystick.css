@@ -1,0 +1,14 @@
+.joystick{
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  bottom: 4rem;
+  left: 4rem;
+}
+.joystick .nipple{
+  opacity: .9 !important;
+}
+
+.hide-stick{
+  display: none !important;
+}

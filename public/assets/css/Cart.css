@@ -1,0 +1,112 @@
+.cart-map {
+  z-index: 90;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+
+  padding: .1rem;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5); 
+  border: none;
+  cursor: pointer
+}
+
+.cart-map.expanded {
+  width: 50%;
+  height: 80%;
+}
+.reserve-count{
+  background-color: red;
+  padding: .05rem .5rem;
+  color: #fff;
+  font-weight: 500;
+  border-radius: 100%;
+  position: absolute;
+  top: -8px;
+  left: 38px;
+}
+.cart-map.compact {
+  width: 3.5rem;
+  height: 3.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.expand-btn {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  /* background: #007bff; */
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.seat-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.seat-row {
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+}
+
+.seat {
+  width: 20px;
+  height: 20px;
+  background-color: #66ff66; /* Available color */
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  border-radius: 4px;
+}
+
+.seat.available {
+  background-color: #66ff66; /* Green */
+  cursor: pointer;
+}
+
+.seat.unavailable {
+  background-color: #ff6666; /* Red */
+  cursor: not-allowed;
+}
+.seat.reserved {
+  background-color: blue;
+  color: white;
+}
+
+.reservation-summary {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 16px;
+  color: black;
+}
+
+.pay-button {
+  background-color: green;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.minimized-text {
+  font-size: 18px;
+  color: gray;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.hide-span{
+  display: none;
+}

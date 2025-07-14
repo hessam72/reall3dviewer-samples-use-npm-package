@@ -1,0 +1,65 @@
+/* assets/css/seatInfo.css */
+.seat-info-modal {
+  position: absolute;
+  right: 1.5%;
+  bottom: 3.5%;
+  width: 50vw;
+  direction: rtl;
+  height: 30vh;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 2rem;
+  border-radius: 8px;
+  color: white;
+}
+.close-btn {
+  position: absolute;
+  bottom: 20px;
+  left: 10px;
+  background: transparent;
+  color: black;
+  font-size: 20px;
+  cursor: pointer;
+  background-color: white;
+  border-radius: 10px;
+  border-color: black;
+  font-weight: 800;
+  font-size: 1rem;
+  padding: 0.7rem 1.1rem;
+  cursor: pointer;
+  margin: 0 0.5rem;
+  transition: all 0.3s ease;
+}
+.close-btn:hover {
+  color: #fff;
+  background-color: black;
+  border-color: #fff;
+}
+.detail-wrapper{
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.info-p{
+  line-height: 2rem;
+  letter-spacing: .03rem;
+  text-align: justify;
+}
+@media (max-width: 800px) {
+  .seat-info-modal {
+    bottom: 0%;
+    border-radius: 0;
+    width: 100%;
+    left: 0;
+    font-size: .85rem;
+    padding-bottom: 12rem;
+  }
+  .close-btn {
+    bottom: 2.5vh;
+    font-size: .75;
+  }
+  .detail-wrapper{
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}

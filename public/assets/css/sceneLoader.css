@@ -1,0 +1,70 @@
+.scene-loader {
+    width: 100vw;
+    z-index: 999999999999;
+    background: #000000;
+    position: relative;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* margin-top: -10vh; */
+  }
+  
+  
+  
+  /* loader styles */
+  /* From Uiverse.io by satyamchaudharydev */
+  .loader {
+    display: block;
+    --height-of-loader: 4px;
+    --loader-color: #4ca4ca;
+    width: 130px;
+    height: var(--height-of-loader);
+    border-radius: 30px;
+    background-color: rgb(66, 66, 66);
+    position: relative;
+    margin: auto;
+    /* margin-top: -10vh; */
+  }
+  
+  .loader::before {
+    content: "";
+    position: absolute;
+    background: var(--loader-color);
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 100%;
+    border-radius: 30px;
+    animation: moving 1s ease-in-out infinite;
+  }
+  
+  @keyframes moving {
+    50% {
+      width: 100%;
+    }
+  
+    100% {
+      width: 0;
+      right: 0;
+      left: unset;
+    }
+  }
+  .loading-logo {
+    max-width: 75vw;
+  
+  }
+  @media (min-width: 800px) {
+    .loading-logo {
+      max-width: 25vw;
+    }
+    /* .loader {
+      margin-top: -18vh;
+  
+    }
+    .scene-loader{
+      height: 121vh;
+     
+      margin-top: -19vh;
+    } */
+  }
