@@ -116,7 +116,7 @@ export default function Home() {
 
     return (
         <div style={{ width: '100vw', height: '100vh' }}>
-            <span style={{ position: 'absolute', color: 'white', top: 10, left: 10 }}>نمای سه بعدی خودروی ۲۰۷</span>
+            {/* <span style={{ position: 'absolute', color: 'white', top: 10, left: 10 }}>نمای سه بعدی خودروی ۲۰۷</span> */}
             <CarInfoBox carDetails={carDetails} />
             <ResetCameraButton onResetTheCamera={handleShowBodyStatus} />
             {isShowBodyStatus && (
