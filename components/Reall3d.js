@@ -41,6 +41,8 @@ export default function Reall3d() {
             alpha: true,
             antialias: true,
             turntable: true,
+            minPolarAngle: -1,
+            maxPolarAngle: 1.63,
             enableKeyboard: false,
         });
 
