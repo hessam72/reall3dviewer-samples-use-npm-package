@@ -44,6 +44,8 @@ export default function Reall3d() {
             minPolarAngle: -1,
             maxPolarAngle: 1.63,
             enableKeyboard: false,
+            fov: 50,
+            // bigSceneMode: true,
         });
 
         // Remove default environment and background nodes
