@@ -10,8 +10,8 @@ export default function Reall3d() {
     const viewerRef = useRef(null);
 
     // URLs for the two PLY models
-    const MODEL_B = '/3DGS.ply';
-    const MODEL_A = '/new_3DGS.ply';
+    const MODEL_B = '/new_3DGS.ply';
+    const MODEL_A = '/3DGS _full.ply';
     const [modelUrl, setModelUrl] = useState(MODEL_A);
 
     // Re-initialize viewer whenever modelUrl changes
@@ -36,7 +36,7 @@ export default function Reall3d() {
             root: container,
             shDegree: 3,
             position: [0, -5, 15],
-            fov: window.innerWidth < 768 ? 30 : 20,
+            fov: window.innerWidth < 768 ? 20 : 10,
             pointcloudMode: true,
             alpha: true,
             antialias: true,
@@ -78,10 +78,10 @@ export default function Reall3d() {
                 onClick={handleSwitch}
                 style={{
                     position: 'absolute',
-                    top: 16,
-                    right: 16,
+                    top: 35,
+                    right: 22,
                     padding: '8px 12px',
-                    background: '#000',
+                    background: '#162455',
                     color: '#fff',
                     border: 'none',
                     borderRadius: 4,

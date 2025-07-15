@@ -6,6 +6,7 @@ import CarBodyStatus from '../components/CarBodyStatus';
 import Car‌BodyStatBox from '../components/CarBodyStatusBox';
 import ResetCameraButton from '../components/resetCamButton';
 import GLBViewer from '../components/GLBViewer';
+import FooterLogoSwitch from '../components/FooterLogo';
 
 const Reall3dBrowser = dynamic(() => import('../components/Reall3d'), {
     ssr: false,
@@ -129,6 +130,7 @@ export default function Home() {
                 </div>
             )}
             <Reall3dBrowser />
+            <FooterLogoSwitch />
         </div>
     );
 }
