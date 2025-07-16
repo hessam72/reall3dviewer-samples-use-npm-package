@@ -19,6 +19,17 @@
     /* z-index: 9; */
 }
 
+.ios-glass-theme li {
+    border-color: #fff !important;
+}
+.ios-glass-theme ul div {
+    border-color: #fff !important;
+}
+@media (min-width: 800px) {
+    .info-btn {
+        width: 100%;
+    }
+}
 @media (max-width: 800px) {
     .car-body-stat {
         width: 85vw;
@@ -30,5 +41,9 @@
     .open_modal {
         width: 90vw !important;
         z-index: 999;
+    }
+    .info-btn {
+        /* width: 80%; */
+        margin-left: auto;
     }
 }

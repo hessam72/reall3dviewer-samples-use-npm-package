@@ -10,12 +10,12 @@ interface CarBodyStatProps {
 const Car‌BodyStatBox: React.FC<CarBodyStatProps> = ({ carBodyStat }) => {
   return (
     <>
-      <div className=" px-4 py-2 text-white bg-gray-900 rounded-lg shadow-lg">
+      <div className="ios-glass-theme px-4 py-2 text-white bg-gray-900 rounded-lg shadow-lg">
         <h2 className="text-xl font-bold mb-2">وضعیت بدنه خودرو</h2>
         <ul>
           {carBodyStat.map((stat, index) => (
 
-            <li key={index} className="w-full flex justify-between px-4 py-2 b-btn">
+            <li key={index} className="w-full flex justify-between px-4 py-2 b-btn  last:border-b-0">
               <p className="text-gray-300 text-sm ">{stat.bodyPart}</p> <p>{stat.status}</p>
             </li>
           ))}

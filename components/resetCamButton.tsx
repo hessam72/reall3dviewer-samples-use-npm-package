@@ -22,11 +22,11 @@ const ResetCameraButton: React.FC<BodyButtonProps> = ({
         direction: "rtl",
       }}
     >
-      <div className="body-buttons flex flex-row-reverse overflow-show bg-gray-900 border divide-x rounded-lg rtl:flex-row-reverse dark:bg-gray-900 dark:border-gray-700 dark:divide-gray-700">
+      <div className="ios-glass-theme body-buttons flex flex-row-reverse overflow-show bg-gray-900 border divide-x rounded-lg rtl:flex-row-reverse dark:bg-gray-900 dark:border-gray-700 dark:divide-gray-700">
         {/* First Button */}
         <div className="relative group">
           <button
-            className="px-4 py-2 font-medium text-gray-600  transition-colors duration-200 sm:px-6 dark:hover:bg-gray-800 dark:text-gray-300 hover:bg-gray-100"
+            className="px-4 py-2 font-medium text-gray-600  transition-colors duration-200 sm:px-6  dark:text-gray-300"
             onClick={onResetTheCamera}
           >
             <FaCar size={28} />
@@ -35,7 +35,7 @@ const ResetCameraButton: React.FC<BodyButtonProps> = ({
 
 
           </button>
-          <div className="absolute caption-tag left-full top-2 ml-2 hidden mb-2 px-3 py-1 text-sm text-white bg-gray-900 rounded-md shadow-lg group-hover:block">
+          <div className="ios-glass-theme absolute caption-tag left-full top-2 ml-2 hidden mb-2 px-6 py-1 text-sm text-white bg-gray-900 rounded-md shadow-lg group-hover:block">
             وضعیت بدنه
           </div>
         </div>

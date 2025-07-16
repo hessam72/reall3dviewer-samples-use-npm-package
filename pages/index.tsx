@@ -104,7 +104,7 @@ export default function Home() {
     const showCarBodyStatus = () => {
         setIsShowBodyStatus(true);
         // setTimeout(() => {
-        statusValue.current = 30;
+        statusValue.current = 32;
         // }, 500);
     };
     const hideCarBodyStatus = () => {

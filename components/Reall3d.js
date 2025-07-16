@@ -44,6 +44,8 @@ export default function Reall3d() {
             minPolarAngle: -1,
             maxPolarAngle: 1.63,
             enableKeyboard: false,
+            maxDistance: 18,
+            minDistance: 1,
             fov: 50,
             // bigSceneMode: true,
         });
@@ -91,6 +93,7 @@ export default function Reall3d() {
                     borderRadius: 4,
                     cursor: 'pointer',
                 }}
+                className="ios-glass-theme"
             >
                 مدل بعدی
             </button>

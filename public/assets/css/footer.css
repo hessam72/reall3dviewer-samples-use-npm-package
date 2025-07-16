@@ -1,45 +1,42 @@
-.footer-logo-wrap{
-  left: 1.5rem;
-  bottom: 3rem;
+.footer-logo-wrap {
+    left: 1.5rem;
+    bottom: 1rem;
 }
 
 .f-logo {
-/* transform: scale(.2); */
+    /* transform: scale(.2); */
 }
 
-.f-text{
-font-size: 1rem;
-  color: var(--main-color);
-     text-shadow: 0px 4px 7px #67c8dba0;
+.f-text {
+    font-size: 1rem;
+    color: var(--main-color);
+    text-shadow: 0px 4px 7px #67c8dba0;
 }
 
 .footer-switch {
-  position: relative;
-  width: 120px;    /* or whatever max width you need */
-  height: 58px;    /* match your logo height */
-  overflow: hidden; 
+    position: relative;
+    width: 11rem; /* or whatever max width you need */
+    height: 58px; /* match your logo height */
+    overflow: hidden;
 }
-.oc-ft-logo{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row-reverse;
+.oc-ft-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row-reverse;
+}
 
-}
-  
-  .oc-ft-logo p{
- color: #7a7a7a;
+.oc-ft-logo p {
+    color: #7a7a7a;
     font-weight: bolder;
-    font-size: .8rem;
-
+    font-size: 0.8rem;
 }
-.oc-ft-logo img{
-
+.oc-ft-logo img {
 }
 .footer-switch > div {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }

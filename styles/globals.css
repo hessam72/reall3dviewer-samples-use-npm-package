@@ -63,3 +63,36 @@ body {
     height: 100% !important;
     /* background: red !important; */
 }
+
+.ios-glass-theme {
+    background: rgb(0 0 0 / 16%) !important;
+    backdrop-filter: blur(17px) saturate(180%) !important;
+
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+
+    /* 3. Ultra-thin border */
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+
+    /* 4. Soft drop-shadow */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+
+    /* 5. Rounded corners */
+    border-radius: 20px !important;
+
+    /* 6. Padding & layout */
+    /* padding: 24px; */
+
+    color: #fff !important;
+
+    /* border-color: #fff !important; */
+}
+/* Optional: colored overlay using a pseudo-element */
+.ios-glass-theme::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    /* subtle gradient tint */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
+    pointer-events: none;
+}
