@@ -66,9 +66,9 @@ body {
 
 .ios-glass-theme {
     background: rgb(0 0 0 / 16%) !important;
-    backdrop-filter: blur(17px) saturate(180%) !important;
-
     -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+
+    backdrop-filter: blur(17px) !important;
 
     /* 3. Ultra-thin border */
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
