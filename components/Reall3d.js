@@ -12,7 +12,9 @@ export default function Reall3d() {
     // URLs for the two PLY models
     const MODEL_B = '/new_3DGS.ply';
     const MODEL_A = '/3DGS _full.ply';
+    const MODEL_C = '/3DGS _full.ply';
     const [modelUrl, setModelUrl] = useState(MODEL_A);
+    const MODELS = [MODEL_A, MODEL_B, MODEL_C];
 
     // Re-initialize viewer whenever modelUrl changes
     useEffect(() => {
@@ -74,7 +76,12 @@ export default function Reall3d() {
 
     // Toggle between models
     const handleSwitch = () => {
-        setModelUrl(prev => (prev === MODEL_A ? MODEL_B : MODEL_A));
+        setModelUrl(prev => {
+            const idx = MODELS.indexOf(prev);
+            // If somehow prev isn’t found, default to 0
+            const nextIndex = idx < 0 ? 0 : (idx + 1) % MODELS.length;
+            return MODELS[nextIndex];
+        });
     };
 
     return (
