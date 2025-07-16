@@ -12,9 +12,9 @@ export default function Reall3d() {
     // URLs for the two PLY models
     const MODEL_B = '/new_3DGS.ply';
     const MODEL_A = '/3DGS _full.ply';
-    const MODEL_C = '/3DGS _full.ply';
+    // const MODEL_C = '/3DGS _full.ply';
     const [modelUrl, setModelUrl] = useState(MODEL_A);
-    const MODELS = [MODEL_A, MODEL_B, MODEL_C];
+    const MODELS = [MODEL_A, MODEL_B];
 
     // Re-initialize viewer whenever modelUrl changes
     useEffect(() => {
