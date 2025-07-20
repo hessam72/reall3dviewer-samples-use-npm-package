@@ -10,12 +10,12 @@ export default function Reall3d() {
     const viewerRef = useRef(null);
 
     // URLs for the two PLY models
-    const MODEL_B = '/new_3DGS.ply';
-    const MODEL_A = '/3DGS _full.ply';
-    const MODEL_C = '/old_car_scene.splat';
-    const MODEL_D = '/3DGS _full.splat';
-    const [modelUrl, setModelUrl] = useState(MODEL_A);
-    const MODELS = [MODEL_A, MODEL_B, MODEL_C, MODEL_D];
+    // const MODEL_B = '/new_3DGS.ply';
+    // const MODEL_A = '/3DGS _full.ply';
+    const MODEL_C = '/last-car-scene.splat';
+    const MODEL_D = '/new_car.splat';
+    const [modelUrl, setModelUrl] = useState(MODEL_C);
+    const MODELS = [MODEL_C, MODEL_D];
 
     // Re-initialize viewer whenever modelUrl changes
     useEffect(() => {
@@ -39,7 +39,7 @@ export default function Reall3d() {
             root: container,
             shDegree: 3,
             position: [0, -5, 15],
-            fov: window.innerWidth < 768 ? 20 : 10,
+            // fov: window.innerWidth < 768 ? 20 : 10,
             pointcloudMode: true,
             alpha: true,
             antialias: true,
