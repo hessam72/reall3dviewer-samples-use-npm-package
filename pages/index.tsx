@@ -112,6 +112,7 @@ export default function Home() {
         statusValue.current = 100;
     };
 
+
     const handleShowBodyStatus = () => {
         isShowBodyStatus ? hideCarBodyStatus() : showCarBodyStatus();
     };
