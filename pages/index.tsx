@@ -8,6 +8,9 @@ import ResetCameraButton from '../components/resetCamButton';
 import GLBViewer from '../components/GLBViewer';
 import FooterLogoSwitch from '../components/FooterLogo';
 
+const ScreenRecorder = dynamic(() => import('../components/ScreenRecorder'), {
+    ssr: false,
+});
 const Reall3dBrowser = dynamic(() => import('../components/Reall3d'), {
     ssr: false,
 });
@@ -119,9 +122,7 @@ export default function Home() {
 
     return (
         <div style={{ width: '100vw', height: '100vh' }}>
-            {/* <span style={{ position: 'absolute', color: 'white', top: 10, left: 10 }}>نمای سه بعدی خودروی ۲۰۷</span> */}
-
-            {/* <GLBViewer url='/garage-nolight.glb' /> */}
+            <ScreenRecorder />
             <CarInfoBox carDetails={carDetails} />
             <ResetCameraButton onResetTheCamera={handleShowBodyStatus} />
             {isShowBodyStatus && (
