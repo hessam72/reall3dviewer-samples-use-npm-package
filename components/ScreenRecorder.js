@@ -17,7 +17,7 @@ const ScreenRecorder = () => {
     useEffect(() => {
         if (isRecording) {
             timerRef.current = setInterval(() => {
-                setRecordingTime((prev) => prev + 1);
+                setRecordingTime(prev => prev + 1);
             }, 1000);
         } else {
             clearInterval(timerRef.current);
@@ -29,32 +29,32 @@ const ScreenRecorder = () => {
     }, [isRecording, isProcessing]);
 
     // Format time display
-    const formatTime = (seconds) => {
+    const formatTime = seconds => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
     // Create vertical cropped canvas for Instagram Stories (9:16 aspect ratio)
-    const createVerticalCanvas = (sourceCanvas) => {
+    const createVerticalCanvas = sourceCanvas => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        
+
         // Instagram Stories aspect ratio: 9:16 (1080x1920)
         const targetWidth = 1080;
         const targetHeight = 1920;
-        
+
         canvas.width = targetWidth;
         canvas.height = targetHeight;
-        
+
         // Calculate source dimensions for center crop
         const sourceWidth = sourceCanvas.width;
         const sourceHeight = sourceCanvas.height;
         const sourceAspectRatio = sourceWidth / sourceHeight;
         const targetAspectRatio = targetWidth / targetHeight;
-        
+
         let cropWidth, cropHeight, cropX, cropY;
-        
+
         if (sourceAspectRatio > targetAspectRatio) {
             // Source is wider, crop from sides
             cropHeight = sourceHeight;
@@ -68,14 +68,10 @@ const ScreenRecorder = () => {
             cropX = 0;
             cropY = (sourceHeight - cropHeight) / 2;
         }
-        
+
         // Draw cropped and scaled image
-        ctx.drawImage(
-            sourceCanvas,
-            cropX, cropY, cropWidth, cropHeight,
-            0, 0, targetWidth, targetHeight
-        );
-        
+        ctx.drawImage(sourceCanvas, cropX, cropY, cropWidth, cropHeight, 0, 0, targetWidth, targetHeight);
+
         return canvas;
     };
 
@@ -90,7 +86,7 @@ const ScreenRecorder = () => {
 
             if (canvas) {
                 console.log('Canvas found:', canvas.width + 'x' + canvas.height);
-                
+
                 // Capture the canvas stream at 60 FPS for better quality (exactly like your old version)
                 const stream = canvas.captureStream(60); // 60 FPS for smoother video
                 recorderRef.current = new RecordRTC(stream, {
@@ -117,40 +113,43 @@ const ScreenRecorder = () => {
     }, []);
 
     // Process video to create vertical version
-    const processVideoToVertical = (originalBlob) => {
-        return new Promise((resolve) => {
+    const processVideoToVertical = originalBlob => {
+        return new Promise(resolve => {
             const video = document.createElement('video');
             video.src = URL.createObjectURL(originalBlob);
-            
+
             video.onloadedmetadata = () => {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                
+
                 // Instagram Stories dimensions
                 canvas.width = 1080;
                 canvas.height = 1920;
-                
+
                 // Calculate crop area for center cropping
                 const videoAspectRatio = video.videoWidth / video.videoHeight;
                 const targetAspectRatio = 1080 / 1920; // 9:16
-                
-                let sourceX = 0, sourceY = 0, sourceW = video.videoWidth, sourceH = video.videoHeight;
-                
+
+                let sourceX = 0,
+                    sourceY = 0,
+                    sourceW = video.videoWidth,
+                    sourceH = video.videoHeight;
+
                 if (videoAspectRatio > targetAspectRatio) {
                     // Video is wider, crop sides
                     sourceW = video.videoHeight * targetAspectRatio;
                     sourceX = (video.videoWidth - sourceW) / 2;
                 } else {
-                    // Video is taller, crop top/bottom  
+                    // Video is taller, crop top/bottom
                     sourceH = video.videoWidth / targetAspectRatio;
                     sourceY = (video.videoHeight - sourceH) / 2;
                 }
-                
+
                 // Draw the cropped frame
                 ctx.drawImage(video, sourceX, sourceY, sourceW, sourceH, 0, 0, canvas.width, canvas.height);
-                
+
                 // Create still image blob for now (video processing would require more complex setup)
-                canvas.toBlob((processedBlob) => {
+                canvas.toBlob(processedBlob => {
                     URL.revokeObjectURL(video.src);
                     // For now, return original blob until we implement full video processing
                     resolve(originalBlob);
@@ -162,13 +161,13 @@ const ScreenRecorder = () => {
     // Stop recording and process (simplified like your old version)
     const stopRecording = useCallback(() => {
         if (!recorderRef.current) return;
-        
+
         setIsProcessing(true);
-        
+
         recorderRef.current.stopRecording(() => {
             const blob = recorderRef.current.getBlob();
             console.log('Recording completed. Blob size:', blob.size, 'bytes');
-            
+
             if (blob.size === 0) {
                 console.error('Recording blob is empty!');
                 alert('Recording failed: Video is empty.');
@@ -176,13 +175,13 @@ const ScreenRecorder = () => {
                 setIsRecording(false);
                 return;
             }
-            
+
             setRecordedBlob(blob);
             const videoUrl = window.URL.createObjectURL(blob); // Create object URL
             setVideoUrl(videoUrl);
             setIsRecording(false);
             setIsProcessing(false);
-            
+
             console.log('Recording processed successfully');
         });
     }, []);
@@ -190,7 +189,7 @@ const ScreenRecorder = () => {
     // Download recording
     const downloadRecording = useCallback(() => {
         if (!videoUrl) return;
-        
+
         const link = document.createElement('a');
         link.href = videoUrl;
         link.download = `recording-${Date.now()}.mp4`;
@@ -211,30 +210,20 @@ const ScreenRecorder = () => {
         <div className="screen-recorder">
             <div className="recorder-controls">
                 <div className="control-group">
-                    <button 
+                    <button
                         className={`record-btn ${isRecording ? 'recording' : ''}`}
                         onClick={isRecording ? stopRecording : startRecording}
                         disabled={isProcessing}
                     >
-                        <div className="record-icon">
-                            {isRecording ? (
-                                <div className="stop-icon"></div>
-                            ) : (
-                                <div className="play-icon"></div>
-                            )}
-                        </div>
-                        <span className="btn-text">
-                            {isProcessing ? 'Processing...' : isRecording ? 'Stop Recording' : 'Start Recording'}
-                        </span>
+                        <div className="record-icon">{isRecording ? <div className="stop-icon"></div> : <div className="play-icon"></div>}</div>
+                        <span className="btn-text">{isProcessing ? 'Processing...' : isRecording ? 'Stop Recording' : 'Start Recording'}</span>
                     </button>
-                    
+
                     {(isRecording || isProcessing) && (
                         <div className="recording-status">
                             <div className="recording-indicator">
                                 <div className="pulse-dot"></div>
-                                <span className="status-text">
-                                    {isProcessing ? 'Processing...' : `REC ${formatTime(recordingTime)}`}
-                                </span>
+                                <span className="status-text">{isProcessing ? 'Processing...' : `REC ${formatTime(recordingTime)}`}</span>
                             </div>
                         </div>
                     )}
@@ -243,9 +232,9 @@ const ScreenRecorder = () => {
                 {recordedBlob && !isRecording && (
                     <div className="recording-result">
                         <div className="video-preview">
-                            <video 
-                                src={videoUrl} 
-                                controls 
+                            <video
+                                src={videoUrl}
+                                controls
                                 className="preview-video"
                                 poster="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxOTIwIiB2aWV3Qm94PSIwIDAgMTA4MCAx%0D%0AOTIwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9z%0D%0AdmciPjxyZWN0IHdpZHRoPSIxMDgwIiBoZWlnaHQ9IjE5MjAiIGZpbGw9IiMxYTE%0D%0AMWE%2BPC9yZWN0Pjx0ZXh0IHg9IjU0MCIgeT0iOTYwIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQ4Ij5WZXJ0aWNhbCBWaWRlbzwvdGV4dD48L3N2Zz4%3D"
                             />
@@ -254,18 +243,18 @@ const ScreenRecorder = () => {
                                 <span className="duration-tag">Duration: {formatTime(recordingTime)}</span>
                             </div>
                         </div>
-                        
+
                         <div className="action-buttons">
                             <button className="download-btn" onClick={downloadRecording}>
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/>
+                                    <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z" />
                                 </svg>
                                 Download Recording
                             </button>
-                            
+
                             <button className="clear-btn" onClick={clearRecording}>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
                                 </svg>
                                 Clear
                             </button>
@@ -334,8 +323,13 @@ const ScreenRecorder = () => {
                 }
 
                 @keyframes pulse-record {
-                    0%, 100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7); }
-                    50% { box-shadow: 0 0 0 8px rgba(244, 67, 54, 0); }
+                    0%,
+                    100% {
+                        box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7);
+                    }
+                    50% {
+                        box-shadow: 0 0 0 8px rgba(244, 67, 54, 0);
+                    }
                 }
 
                 .record-icon {
@@ -384,8 +378,15 @@ const ScreenRecorder = () => {
                 }
 
                 @keyframes pulse-dot {
-                    0%, 100% { opacity: 1; transform: scale(1); }
-                    50% { opacity: 0.5; transform: scale(0.8); }
+                    0%,
+                    100% {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
+                    50% {
+                        opacity: 0.5;
+                        transform: scale(0.8);
+                    }
                 }
 
                 .status-text {
@@ -488,7 +489,7 @@ const ScreenRecorder = () => {
                         left: 10px;
                         position: fixed;
                     }
-                    
+
                     .recorder-controls {
                         min-width: auto;
                         width: 100%;
