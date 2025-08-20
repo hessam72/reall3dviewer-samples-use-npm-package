@@ -13,9 +13,9 @@ export default function Reall3d() {
     // const MODEL_B = '/new_3DGS.ply';
     // const MODEL_A = '/3DGS _full.ply';
     const MODEL_C = '/last-car-scene.splat';
-    const MODEL_D = '/new_car.splat';
+    // const MODEL_D = '/new_car.splat';
     const [modelUrl, setModelUrl] = useState(MODEL_C);
-    const MODELS = [MODEL_C, MODEL_D];
+    const MODELS = [MODEL_C];
 
     // Re-initialize viewer whenever modelUrl changes
     useEffect(() => {
