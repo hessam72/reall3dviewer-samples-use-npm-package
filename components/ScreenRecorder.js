@@ -48,11 +48,11 @@ const ScreenRecorder = () => {
                     const stream = canvas.captureStream(60); // 60 FPS for ultra-smooth recording
 
                     // Check if VP9 codec is supported, fallback to VP8 if not
-                    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
-                        ? 'video/webm;codecs=vp9'
-                        : MediaRecorder.isTypeSupported('video/webm;codecs=vp8')
-                        ? 'video/webm;codecs=vp8'
-                        : 'video/webm';
+                    const mimeType = MediaRecorder.isTypeSupported('video/mp4;codecs=vp9')
+                        ? 'video/mp4;codecs=vp9'
+                        : MediaRecorder.isTypeSupported('video/mp4;codecs=vp8')
+                        ? 'video/mp4;codecs=vp8'
+                        : 'video/mp4';
 
                     console.log('Using MIME type:', mimeType);
 
@@ -111,7 +111,7 @@ const ScreenRecorder = () => {
             const link = document.createElement('a');
             const videoUrl = window.URL.createObjectURL(blob);
             link.href = videoUrl;
-            link.download = `fullhd-60fps-${Date.now()}.webm`;
+            link.download = `fullhd-60fps-${Date.now()}.mp4`;
             link.click();
 
             // Clean up
