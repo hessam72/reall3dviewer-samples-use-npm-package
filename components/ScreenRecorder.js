@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import RecordRTC from 'recordrtc';
+import CryptoJS from 'crypto-js';
 
 const ScreenRecorder = () => {
     const [isRecording, setIsRecording] = useState(false);
@@ -8,6 +9,99 @@ const ScreenRecorder = () => {
     const [isProcessing, setIsProcessing] = useState(false);
     const recorderRef = useRef(null);
     const timerRef = useRef(null);
+    const [isAllowed, setIsAllowed] = useState(false);
+
+    // Check URL parameter on component mount
+    useEffect(() => {
+        // const checkRecordingPermission = () => {
+        //     const params = new URLSearchParams(window.location.search);
+        //     const encryptedParam = params.get('rcd');
+
+        //     // Replace the existing try-catch block in the checkRecordingPermission function
+        //     if (encryptedParam) {
+        //         try {
+        //             const secretKey = 'the-car-panel-scrt-key';
+
+        //             // Log the raw encrypted param
+        //             console.log('Raw encrypted param:', encryptedParam);
+
+        //             // Decode URI component first
+        //             const decodedParam = decodeURIComponent(encryptedParam);
+        //             console.log('Decoded param:', decodedParam);
+
+        //             // Try decryption
+        //             const decryptedBytes = CryptoJS.AES.decrypt(decodedParam, secretKey);
+        //             console.log('Decrypted bytes:', decryptedBytes);
+
+        //             // Convert to string carefully
+        //             const decrypted = decryptedBytes.toString(CryptoJS.enc.Utf8);
+        //             console.log('Final decrypted string:', decrypted);
+
+        //             if (!decrypted) {
+        //                 console.error('Decryption resulted in empty string');
+        //                 console.log('Decryption details:', {
+        //                     inputLength: encryptedParam.length,
+        //                     decodedLength: decodedParam.length,
+        //                     bytesLength: decryptedBytes.words ? decryptedBytes.words.length : 0,
+        //                 });
+        //                 setIsAllowed(false);
+        //                 return;
+        //             }
+        //         } catch (decryptError) {
+        //             console.error('Decryption error:', decryptError);
+        //         }
+        //     }
+        //     setIsAllowed(false);
+        // };
+
+        const checkRecordingPermission = () => {
+            const params = new URLSearchParams(window.location.search);
+            const encryptedParam = params.get('rcd');
+
+            if (!encryptedParam) {
+                setIsAllowed(false);
+                return;
+            }
+
+            try {
+                const secretKey = 'the-car-panel-scrt-key';
+
+                // URLSearchParams already percent-decodes; but if '+' turned into ' ' earlier,
+                // convert spaces back to '+' so base64 is correct.
+                const safeParam = encryptedParam.replace(/ /g, '+');
+
+                const decryptedBytes = CryptoJS.AES.decrypt(safeParam, secretKey);
+                const decrypted = decryptedBytes.toString(CryptoJS.enc.Utf8);
+
+                if (!decrypted) {
+                    console.error('Decryption produced an empty string');
+                    setIsAllowed(false);
+                    return;
+                }
+
+                // parse JSON to read carId
+                const payload = JSON.parse(decrypted);
+                console.log('Decrypted payload:', payload); // { carId, timestamp, userId }
+
+                // example validation: expiry check (optional)
+                const ageMs = Date.now() - payload.timestamp;
+                const maxAgeMs = 1000 * 60 * 5; // 5 minutes
+                if (ageMs > maxAgeMs) {
+                    console.warn('Token expired');
+                    setIsAllowed(false);
+                    return;
+                }
+
+                // now you can read payload.carId
+                console.log('carId:', payload.carId);
+                setIsAllowed(true);
+            } catch (err) {
+                console.error('Decryption/parse error:', err);
+                setIsAllowed(false);
+            }
+        };
+        checkRecordingPermission();
+    }, []);
 
     // Timer for recording duration
     useEffect(() => {
@@ -124,29 +218,33 @@ const ScreenRecorder = () => {
     }, []);
 
     return (
-        <div className="screen-recorder">
-            <button
-                className={`record-btn ${isRecording ? 'recording' : ''}`}
-                onClick={isRecording ? stopRecording : startRecording}
-                disabled={isProcessing}
-            >
-                <div className="record-icon">{isRecording ? <div className="stop-icon"></div> : <div className="play-icon"></div>}</div>
-                <span className="btn-text">{isProcessing ? 'Processing...' : isRecording ? 'Stop Recording' : 'Start Recording'}</span>
-            </button>
+        <>
+            {isAllowed && (
+                <div className="screen-recorder">
+                    <button
+                        className={`record-btn ${isRecording ? 'recording' : ''}`}
+                        onClick={isRecording ? stopRecording : startRecording}
+                        disabled={isProcessing}
+                    >
+                        <div className="record-icon">{isRecording ? <div className="stop-icon"></div> : <div className="play-icon"></div>}</div>
+                        <span className="btn-text">{isProcessing ? 'Processing...' : isRecording ? 'Stop Recording' : 'Start Recording'}</span>
+                    </button>
 
-            {(isRecording || isProcessing) && (
-                <div className="recording-status">
-                    <div className="recording-indicator">
-                        <div className="pulse-dot"></div>
-                        <span className="status-text">{isProcessing ? 'Processing...' : `REC ${formatTime(recordingTime)}`}</span>
-                    </div>
+                    {(isRecording || isProcessing) && (
+                        <div className="recording-status">
+                            <div className="recording-indicator">
+                                <div className="pulse-dot"></div>
+                                <span className="status-text">{isProcessing ? 'Processing...' : `REC ${formatTime(recordingTime)}`}</span>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 
             <style jsx>{`
                 .screen-recorder {
                     position: fixed;
-                    top: 13.5%;
+                    top: 6.5%;
                     right: 20px;
                     transform: translateY(-50%);
                     z-index: 1000;
@@ -366,7 +464,7 @@ const ScreenRecorder = () => {
                     }
                 }
             `}</style>
-        </div>
+        </>
     );
 };
 

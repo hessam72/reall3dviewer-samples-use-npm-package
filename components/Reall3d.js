@@ -88,7 +88,7 @@ export default function Reall3d() {
     return (
         <>
             {/* Toggle button */}
-            <button
+            {/* <button
                 onClick={handleSwitch}
                 style={{
                     position: 'absolute',
@@ -104,7 +104,7 @@ export default function Reall3d() {
                 className="ios-glass-theme"
             >
                 مدل بعدی
-            </button>
+            </button> */}
 
             {/* Viewer container */}
             <div id="viewer1" ref={containerRef} style={{ width: '100%', height: '100%', overflow: 'hidden' }} />
