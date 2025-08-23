@@ -122,7 +122,7 @@ export default function Home() {
 
     return (
         <div style={{ width: '100vw', height: '100vh' }}>
-            <ScreenRecorder />
+            {/* <ScreenRecorder />
             <CarInfoBox carDetails={carDetails} />
             <ResetCameraButton onResetTheCamera={handleShowBodyStatus} />
             {isShowBodyStatus && (
@@ -130,9 +130,9 @@ export default function Home() {
                     <Car‌BodyStatBox carBodyStat={carBodyStats} />
                     <CarBodyStatus status={statusValue.current} />
                 </div>
-            )}
+            )} */}
             <Reall3dBrowser />
-            <FooterLogoSwitch />
+            {/* <FooterLogoSwitch /> */}
         </div>
     );
 }
