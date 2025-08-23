@@ -179,14 +179,14 @@ export default function Home() {
                 isAnimating={isAnimating}
                 stopRecordingVal={stopRecordingVal}
             />
-            {/*   <CarInfoBox carDetails={carDetails} />
+            <CarInfoBox carDetails={carDetails} />
             <ResetCameraButton onResetTheCamera={handleShowBodyStatus} />
             {isShowBodyStatus && (
                 <div className={'car-body-stat'}>
                     <Car‌BodyStatBox carBodyStat={carBodyStats} />
                     <CarBodyStatus status={statusValue.current} />
                 </div>
-            )} */}
+            )}
             <Reall3dBrowser
                 ref={reall3dRef}
                 shouldStartAnimation={shouldStartAnimation}
@@ -194,7 +194,7 @@ export default function Home() {
                 onAnimationComplete={handleAnimationComplete}
                 onAnimationStart={() => setIsAnimating(true)}
             />
-            {/* <FooterLogoSwitch /> */}
+            <FooterLogoSwitch />
         </div>
     );
 }

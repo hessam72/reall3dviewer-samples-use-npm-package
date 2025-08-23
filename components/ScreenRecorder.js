@@ -284,37 +284,37 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
 
     return (
         <>
-            {isAllowed && (
-                <>
-                    <div className="screen-recorder">
-                        <button
-                            className={`record-btn ${isRecording ? 'recording' : ''} ${isAnimating && !isRecording ? 'disabled' : ''}`}
-                            onClick={handleRecordingToggle}
-                            disabled={isProcessing || (isAnimating && !isRecording)}
-                        >
-                            <div className="record-icon">{isRecording ? <div className="stop-icon"></div> : <div className="play-icon"></div>}</div>
-                            <span className="btn-text">
-                                {isProcessing ? 'در حال پردازش...' : isRecording ? 'متوقف کردن ضبط' : isAnimating ? 'در حال انیمیشن...' : 'شروع ضبط'}
-                            </span>
-                        </button>
+            {/* {isAllowed && ( */}
+            <>
+                <div className="screen-recorder">
+                    <button
+                        className={`record-btn ${isRecording ? 'recording' : ''} ${isAnimating && !isRecording ? 'disabled' : ''}`}
+                        onClick={handleRecordingToggle}
+                        disabled={isProcessing || (isAnimating && !isRecording)}
+                    >
+                        <div className="record-icon">{isRecording ? <div className="stop-icon"></div> : <div className="play-icon"></div>}</div>
+                        <span className="btn-text">
+                            {isProcessing ? 'در حال پردازش...' : isRecording ? 'متوقف کردن ضبط' : isAnimating ? 'در حال انیمیشن...' : 'شروع ضبط'}
+                        </span>
+                    </button>
 
-                        {(isRecording || isProcessing) && (
-                            <div className="recording-status">
-                                <div className="recording-indicator">
-                                    <div className="pulse-dot"></div>
-                                    <span className="status-text">{isProcessing ? 'در حال پردازش...' : `REC ${formatTime(recordingTime)}`}</span>
-                                </div>
+                    {(isRecording || isProcessing) && (
+                        <div className="recording-status">
+                            <div className="recording-indicator">
+                                <div className="pulse-dot"></div>
+                                <span className="status-text">{isProcessing ? 'در حال پردازش...' : `REC ${formatTime(recordingTime)}`}</span>
                             </div>
-                        )}
-                    </div>
-                    <SharePopup
-                        isOpen={showSharePopup}
-                        onClose={handleCloseSharePopup}
-                        videoUrl={recordedVideoUrl}
-                        onDownload={downloadRecording} // Your existing download function
-                    />
-                </>
-            )}
+                        </div>
+                    )}
+                </div>
+                <SharePopup
+                    isOpen={showSharePopup}
+                    onClose={handleCloseSharePopup}
+                    videoUrl={recordedVideoUrl}
+                    onDownload={downloadRecording} // Your existing download function
+                />
+            </>
+            {/* )} */}
             <style jsx>{`
                 .screen-recorder {
                     position: fixed;
