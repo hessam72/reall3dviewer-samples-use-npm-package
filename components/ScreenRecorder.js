@@ -145,7 +145,7 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
 
                 try {
                     // Capture the canvas stream at 60 FPS in Full HD with optimal settings
-                    const stream = canvas.captureStream(60); // 60 FPS for ultra-smooth recording
+                    const stream = canvas.captureStream(120); // 60 FPS for ultra-smooth recording
 
                     // Check if VP9 codec is supported, fallback to VP8 if not
                     const mimeType = MediaRecorder.isTypeSupported('video/mp4;codecs=vp9')
@@ -163,7 +163,7 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
                         video: {
                             width: 1920, // Full HD width
                             height: 1080, // Full HD height
-                            frameRate: 60, // 60 FPS for buttery-smooth playback
+                            frameRate: 120, // 60 FPS for buttery-smooth playback
                         },
                         // Additional quality settings
                         timeSlice: 100, // Capture data every 100ms for smoother recording

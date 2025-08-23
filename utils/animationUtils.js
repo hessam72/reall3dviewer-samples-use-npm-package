@@ -5,16 +5,22 @@
  */
 export const easingFunctions = {
     // Standard cubic easing - balanced acceleration/deceleration
-    easeInOutCubic: (t) => t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1,
-    
+    easeInOutCubic: t => (t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1),
+
     // Quartic easing - slower peak speed, more gradual
-    easeInOutQuart: (t) => t < 0.5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t,
-    
+    easeInOutQuart: t => (t < 0.5 ? 8 * t * t * t * t : 1 - 8 * --t * t * t * t),
+
     // Linear (no easing)
-    linear: (t) => t,
-    
+    linear: t => t,
+
     // Sine easing - very smooth and natural
-    easeInOutSine: (t) => -(Math.cos(Math.PI * t) - 1) / 2
+    easeInOutSine: t => -(Math.cos(Math.PI * t) - 1) / 2,
+
+    // Custom smooth easing - even more gradual
+    easeSuperSmooth: t => {
+        // Sine-based super smooth curve
+        return 0.5 * (1 - Math.cos(Math.PI * t));
+    },
 };
 
 /**
@@ -26,20 +32,20 @@ export const easingFunctions = {
 export const animateProperty = (updateFn, duration) => {
     return new Promise(resolve => {
         const startTime = performance.now();
-        
+
         const animate = () => {
             const elapsed = performance.now() - startTime;
             const progress = Math.min(elapsed / duration, 1);
-            
+
             updateFn(progress);
-            
+
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
                 resolve();
             }
         };
-        
+
         requestAnimationFrame(animate);
     });
 };
@@ -53,7 +59,7 @@ export const animateProperty = (updateFn, duration) => {
  */
 export const performComplexAnimation = async (viewer, setIsAnimating, onAnimationPause = null) => {
     if (!viewer.splatMesh) return;
-    
+
     // Set animating state
     setIsAnimating(true);
 
@@ -73,7 +79,7 @@ export const performComplexAnimation = async (viewer, setIsAnimating, onAnimatio
             x: viewer.splatMesh.scale.x,
             y: viewer.splatMesh.scale.y,
             z: viewer.splatMesh.scale.z,
-        }
+        },
     };
 
     // Store initial camera settings
@@ -85,7 +91,7 @@ export const performComplexAnimation = async (viewer, setIsAnimating, onAnimatio
     try {
         // Step 1a: Force zoom out to maximum distance first (reset any user zoom)
         const maxZoomOut = 25; // Ensure we start from far out
-        await animateProperty((progress) => {
+        await animateProperty(progress => {
             const easedProgress = easingFunctions.easeInOutCubic(progress);
             const currentAnimDistance = initialState.distance + (maxZoomOut - initialState.distance) * easedProgress;
             viewer.options({
@@ -96,7 +102,7 @@ export const performComplexAnimation = async (viewer, setIsAnimating, onAnimatio
 
         // Step 1b: Now zoom in to optimal viewing distance
         const targetDistance = 8; // Good viewing distance
-        await animateProperty((progress) => {
+        await animateProperty(progress => {
             const easedProgress = easingFunctions.easeInOutCubic(progress);
             const currentAnimDistance = maxZoomOut + (targetDistance - maxZoomOut) * easedProgress;
             viewer.options({
@@ -106,74 +112,66 @@ export const performComplexAnimation = async (viewer, setIsAnimating, onAnimatio
         }, 1200);
 
         // Step 2: Reduce Y position
-        const targetY = initialState.position.y - 1;
-        await animateProperty((progress) => {
+        const targetY = initialState.position.y - 2;
+        await animateProperty(progress => {
             const easedProgress = easingFunctions.easeInOutCubic(progress);
             viewer.splatMesh.position.y = initialState.position.y + (targetY - initialState.position.y) * easedProgress;
         }, 1500);
 
-        // Step 3: Combined double rotation (720°) with height increase in second half
-        await animateProperty((progress) => {
-            // Apply smooth easing to rotation with slower peak speed
-            const easedRotationProgress = easingFunctions.easeInOutQuart(progress);
-            
-            // Total progress covers two full rotations (720°) with smooth acceleration
-            const totalRotation = Math.PI * 4 * easedRotationProgress; // 0 to 4π (720°)
+        // Step 3: Single smooth rotation (360°) with height increase throughout
+        await animateProperty(progress => {
+            // Apply ultra-smooth easing for rotation
+            const easedRotationProgress = easingFunctions.easeSuperSmooth(progress);
+
+            // Single rotation (360°) with ultra-smooth movement
+            const totalRotation = Math.PI * 2 * easedRotationProgress; // 0 to 2π (360°)
             viewer.splatMesh.rotation.y = initialState.rotation.y + totalRotation;
 
-            // Height increase only happens in the second half (progress > 0.5)
-            let heightIncrease = 0;
+            // Height increase happens throughout the entire rotation
+            let heightIncrease = 0.5;
             let modelWorldY = initialState.position.y + (targetY - initialState.position.y);
 
-            if (progress > 0.5) {
-                // Map progress 0.5-1.0 to 0-1.0 for height animation
-                const heightProgress = (progress - 0.5) * 2;
-                const easedHeightProgress = easingFunctions.easeInOutCubic(heightProgress);
-                
-                heightIncrease = 2 * easedHeightProgress; // Go up 2 units with easing
-                viewer.splatMesh.position.y = targetY + heightIncrease;
-                
-                // Calculate model's world position including height change
-                modelWorldY = initialState.position.y + (targetY - initialState.position.y) + heightIncrease;
+            // Use the same smooth easing for height change
+            const easedHeightProgress = easingFunctions.easeSuperSmooth(progress);
+            heightIncrease = 2 * easedHeightProgress; // Go up 2 units with ultra-smooth easing
+            viewer.splatMesh.position.y = targetY + heightIncrease;
 
-                // Update camera lookAt to track the model's center during height changes
-                viewer.options({
-                    lookAt: [
-                        initialState.lookAt[0], // Keep X the same
-                        modelWorldY,           // Follow the model's Y position
-                        initialState.lookAt[2] // Keep Z the same
-                    ]
-                });
-            }
-        }, 7000); // Total time for both rotations
+            // Calculate model's world position including height change
+            modelWorldY = initialState.position.y + (targetY - initialState.position.y) + heightIncrease;
+
+            // Update camera lookAt to track the model's center during height changes
+            viewer.options({
+                lookAt: [
+                    initialState.lookAt[0], // Keep X the same
+                    modelWorldY, // Follow the model's Y position
+                    initialState.lookAt[2], // Keep Z the same
+                ],
+            });
+        }, 15000); // Extended time for ultra-smooth single rotation
 
         // Step 4: Pause for 1 second - trigger recording stop here
-        console.log('Animation reached pause point, onAnimationPause:', typeof onAnimationPause);
         if (onAnimationPause) {
-            console.log('Calling onAnimationPause...');
             onAnimationPause(); // Stop recording during pause
-        } else {
-            console.log('onAnimationPause is null or undefined');
         }
-        
+
         await animateProperty(() => {
             // Do nothing, just wait
         }, 1000);
 
         // Step 5: Reset to initial state
-        await animateProperty((progress) => {
+        await animateProperty(progress => {
             const easedProgress = easingFunctions.easeInOutCubic(progress);
-            
+
             // Reset position
             viewer.splatMesh.position.x = (initialState.position.x - viewer.splatMesh.position.x) * easedProgress + viewer.splatMesh.position.x;
             viewer.splatMesh.position.y = (initialState.position.y - viewer.splatMesh.position.y) * easedProgress + viewer.splatMesh.position.y;
             viewer.splatMesh.position.z = (initialState.position.z - viewer.splatMesh.position.z) * easedProgress + viewer.splatMesh.position.z;
-            
+
             // Reset rotation
             viewer.splatMesh.rotation.x = (initialState.rotation.x - viewer.splatMesh.rotation.x) * easedProgress + viewer.splatMesh.rotation.x;
             viewer.splatMesh.rotation.y = (initialState.rotation.y - viewer.splatMesh.rotation.y) * easedProgress + viewer.splatMesh.rotation.y;
             viewer.splatMesh.rotation.z = (initialState.rotation.z - viewer.splatMesh.rotation.z) * easedProgress + viewer.splatMesh.rotation.z;
-            
+
             // Reset scale
             viewer.splatMesh.scale.x = (initialState.scale.x - viewer.splatMesh.scale.x) * easedProgress + viewer.splatMesh.scale.x;
             viewer.splatMesh.scale.y = (initialState.scale.y - viewer.splatMesh.scale.y) * easedProgress + viewer.splatMesh.scale.y;
@@ -187,7 +185,6 @@ export const performComplexAnimation = async (viewer, setIsAnimating, onAnimatio
             lookAt: initialState.lookAt,
             position: initialState.cameraPosition,
         });
-        
     } catch (error) {
         console.error('Animation error:', error);
     } finally {
