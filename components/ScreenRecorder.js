@@ -2,10 +2,12 @@
 import React, { useState, useRef, useCallback, useEffect, useImperativeHandle } from 'react';
 import RecordRTC from 'recordrtc';
 import CryptoJS from 'crypto-js';
+import SharePopup from './sharePopup';
 
 const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRecordingVal }, ref) => {
     console.log('ScreenRecorder component rendered, ref:', !!ref);
-
+    const [showSharePopup, setShowSharePopup] = useState(false);
+    const [recordedVideoUrl, setRecordedVideoUrl] = useState('');
     const [isRecording, setIsRecording] = useState(false);
     const [recordingTime, setRecordingTime] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -224,16 +226,37 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
             const videoUrl = window.URL.createObjectURL(blob);
             link.href = videoUrl;
             link.download = `fullhd-60fps-${Date.now()}.mp4`;
-            link.click();
+            // link.click();
 
             // Clean up
-            URL.revokeObjectURL(videoUrl);
+            // URL.revokeObjectURL(videoUrl);
+
+            setRecordedVideoUrl(videoUrl); // Save the video URL
+            setShowSharePopup(true); // Show the sharing popup
             setIsRecording(false);
             setIsProcessing(false);
 
             console.log('Recording processed and downloaded successfully');
         });
     }, []);
+    // Add this before the return statement
+    const handleCloseSharePopup = () => {
+        setShowSharePopup(false);
+        // Cleanup
+        if (recordedVideoUrl) {
+            URL.revokeObjectURL(recordedVideoUrl);
+        }
+    };
+    const downloadRecording = () => {
+        if (recordedVideoUrl) {
+            const link = document.createElement('a');
+            link.href = recordedVideoUrl;
+            link.download = `fullhd-60fps-${Date.now()}.mp4`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
 
     // Expose methods via ref
     useImperativeHandle(
@@ -262,29 +285,36 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
     return (
         <>
             {isAllowed && (
-                <div className="screen-recorder">
-                    <button
-                        className={`record-btn ${isRecording ? 'recording' : ''} ${isAnimating && !isRecording ? 'disabled' : ''}`}
-                        onClick={handleRecordingToggle}
-                        disabled={isProcessing || (isAnimating && !isRecording)}
-                    >
-                        <div className="record-icon">{isRecording ? <div className="stop-icon"></div> : <div className="play-icon"></div>}</div>
-                        <span className="btn-text">
-                            {isProcessing ? 'Processing...' : isRecording ? 'Stop Recording' : isAnimating ? 'Animating...' : 'Start Recording'}
-                        </span>
-                    </button>
+                <>
+                    <div className="screen-recorder">
+                        <button
+                            className={`record-btn ${isRecording ? 'recording' : ''} ${isAnimating && !isRecording ? 'disabled' : ''}`}
+                            onClick={handleRecordingToggle}
+                            disabled={isProcessing || (isAnimating && !isRecording)}
+                        >
+                            <div className="record-icon">{isRecording ? <div className="stop-icon"></div> : <div className="play-icon"></div>}</div>
+                            <span className="btn-text">
+                                {isProcessing ? 'در حال پردازش...' : isRecording ? 'متوقف کردن ضبط' : isAnimating ? 'در حال انیمیشن...' : 'شروع ضبط'}
+                            </span>
+                        </button>
 
-                    {(isRecording || isProcessing) && (
-                        <div className="recording-status">
-                            <div className="recording-indicator">
-                                <div className="pulse-dot"></div>
-                                <span className="status-text">{isProcessing ? 'Processing...' : `REC ${formatTime(recordingTime)}`}</span>
+                        {(isRecording || isProcessing) && (
+                            <div className="recording-status">
+                                <div className="recording-indicator">
+                                    <div className="pulse-dot"></div>
+                                    <span className="status-text">{isProcessing ? 'در حال پردازش...' : `REC ${formatTime(recordingTime)}`}</span>
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
+                    <SharePopup
+                        isOpen={showSharePopup}
+                        onClose={handleCloseSharePopup}
+                        videoUrl={recordedVideoUrl}
+                        onDownload={downloadRecording} // Your existing download function
+                    />
+                </>
             )}
-
             <style jsx>{`
                 .screen-recorder {
                     position: fixed;
