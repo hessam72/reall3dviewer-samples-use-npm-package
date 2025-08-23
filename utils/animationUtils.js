@@ -111,11 +111,23 @@ export const performComplexAnimation = async (viewer, setIsAnimating, onAnimatio
             });
         }, 1200);
 
-        // Step 2: Reduce Y position
-        const targetY = initialState.position.y - 2;
+        // Step 2: Reduce Y position and adjust camera lookAt
+        const targetY = initialState.position.y - 3;
         await animateProperty(progress => {
             const easedProgress = easingFunctions.easeInOutCubic(progress);
             viewer.splatMesh.position.y = initialState.position.y + (targetY - initialState.position.y) * easedProgress;
+            
+            // Calculate model's current world Y position
+            const currentModelY = initialState.position.y + (targetY - initialState.position.y) * easedProgress;
+            
+            // Update camera lookAt to track the model's center during Y position changes
+            viewer.options({
+                lookAt: [
+                    initialState.lookAt[0], // Keep X the same
+                    currentModelY, // Follow the model's Y position
+                    initialState.lookAt[2], // Keep Z the same
+                ],
+            });
         }, 1500);
 
         // Step 3: Single smooth rotation (360°) with height increase throughout
@@ -124,16 +136,16 @@ export const performComplexAnimation = async (viewer, setIsAnimating, onAnimatio
             const easedRotationProgress = easingFunctions.easeSuperSmooth(progress);
 
             // Single rotation (360°) with ultra-smooth movement
-            const totalRotation = Math.PI * 2 * easedRotationProgress; // 0 to 2π (360°)
+            const totalRotation = Math.PI * 4 * easedRotationProgress; // 0 to 2π (360°)
             viewer.splatMesh.rotation.y = initialState.rotation.y + totalRotation;
 
             // Height increase happens throughout the entire rotation
-            let heightIncrease = 0.5;
+            let heightIncrease = 1;
             let modelWorldY = initialState.position.y + (targetY - initialState.position.y);
 
             // Use the same smooth easing for height change
             const easedHeightProgress = easingFunctions.easeSuperSmooth(progress);
-            heightIncrease = 2 * easedHeightProgress; // Go up 2 units with ultra-smooth easing
+            heightIncrease = 4 * easedHeightProgress; // Go up 2 units with ultra-smooth easing
             viewer.splatMesh.position.y = targetY + heightIncrease;
 
             // Calculate model's world position including height change
