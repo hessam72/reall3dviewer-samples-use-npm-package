@@ -261,29 +261,29 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
 
     return (
         <>
-            {/* {isAllowed && ( */}
-            <div className="screen-recorder">
-                <button
-                    className={`record-btn ${isRecording ? 'recording' : ''} ${isAnimating && !isRecording ? 'disabled' : ''}`}
-                    onClick={handleRecordingToggle}
-                    disabled={isProcessing || (isAnimating && !isRecording)}
-                >
-                    <div className="record-icon">{isRecording ? <div className="stop-icon"></div> : <div className="play-icon"></div>}</div>
-                    <span className="btn-text">
-                        {isProcessing ? 'Processing...' : isRecording ? 'Stop Recording' : isAnimating ? 'Animating...' : 'Start Recording'}
-                    </span>
-                </button>
+            {isAllowed && (
+                <div className="screen-recorder">
+                    <button
+                        className={`record-btn ${isRecording ? 'recording' : ''} ${isAnimating && !isRecording ? 'disabled' : ''}`}
+                        onClick={handleRecordingToggle}
+                        disabled={isProcessing || (isAnimating && !isRecording)}
+                    >
+                        <div className="record-icon">{isRecording ? <div className="stop-icon"></div> : <div className="play-icon"></div>}</div>
+                        <span className="btn-text">
+                            {isProcessing ? 'Processing...' : isRecording ? 'Stop Recording' : isAnimating ? 'Animating...' : 'Start Recording'}
+                        </span>
+                    </button>
 
-                {(isRecording || isProcessing) && (
-                    <div className="recording-status">
-                        <div className="recording-indicator">
-                            <div className="pulse-dot"></div>
-                            <span className="status-text">{isProcessing ? 'Processing...' : `REC ${formatTime(recordingTime)}`}</span>
+                    {(isRecording || isProcessing) && (
+                        <div className="recording-status">
+                            <div className="recording-indicator">
+                                <div className="pulse-dot"></div>
+                                <span className="status-text">{isProcessing ? 'Processing...' : `REC ${formatTime(recordingTime)}`}</span>
+                            </div>
                         </div>
-                    </div>
-                )}
-            </div>
-            {/* )} */}
+                    )}
+                </div>
+            )}
 
             <style jsx>{`
                 .screen-recorder {
