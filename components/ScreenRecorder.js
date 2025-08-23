@@ -1,9 +1,11 @@
 'use client';
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useImperativeHandle } from 'react';
 import RecordRTC from 'recordrtc';
 import CryptoJS from 'crypto-js';
 
-const ScreenRecorder = () => {
+const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRecordingVal }, ref) => {
+    console.log('ScreenRecorder component rendered, ref:', !!ref);
+
     const [isRecording, setIsRecording] = useState(false);
     const [recordingTime, setRecordingTime] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -118,6 +120,10 @@ const ScreenRecorder = () => {
         return () => clearInterval(timerRef.current);
     }, [isRecording, isProcessing]);
 
+    useEffect(() => {
+        stopRecording();
+    }, [stopRecordingVal]);
+
     // Format time display
     const formatTime = seconds => {
         const mins = Math.floor(seconds / 60);
@@ -173,6 +179,11 @@ const ScreenRecorder = () => {
                 setIsRecording(true);
                 setRecordingTime(0);
                 console.log('Recording started successfully');
+
+                // Trigger animation when recording starts
+                if (onStartRecording) {
+                    onStartRecording();
+                }
             } else {
                 console.error('No canvas found inside viewer1');
                 alert('Cannot find canvas. Please wait for the 3D scene to load completely.');
@@ -181,12 +192,19 @@ const ScreenRecorder = () => {
             console.error('Div with id "viewer1" not found');
             alert('Cannot find viewer1 element.');
         }
-    }, []);
+    }, [onStartRecording]);
 
     // Stop recording and auto-download
     const stopRecording = useCallback(() => {
-        if (!recorderRef.current) return;
+        console.log('STOP RECORDING FUNCTION CALLED =========================');
+        console.log('recorderRef.current exists:', !!recorderRef.current);
+        console.log('isRecording state:', isRecording);
 
+        if (!recorderRef.current) {
+            console.log('No recorder ref, returning early');
+            return;
+        }
+        console.log('Proceeding with stop recording...');
         setIsProcessing(true);
 
         recorderRef.current.stopRecording(() => {
@@ -217,29 +235,55 @@ const ScreenRecorder = () => {
         });
     }, []);
 
+    // Expose methods via ref
+    useImperativeHandle(
+        ref,
+        () => {
+            console.log('useImperativeHandle called, setting up ref methods');
+            return {
+                stopRecording: () => {
+                    console.log('stopRecording called via ref!');
+                    stopRecording();
+                },
+            };
+        },
+        [stopRecording],
+    );
+
+    // Handle recording start/stop - only allow start if not animating
+    const handleRecordingToggle = () => {
+        if (isRecording) {
+            stopRecording();
+        } else if (!isAnimating) {
+            startRecording();
+        }
+    };
+
     return (
         <>
-            {isAllowed && (
-                <div className="screen-recorder">
-                    <button
-                        className={`record-btn ${isRecording ? 'recording' : ''}`}
-                        onClick={isRecording ? stopRecording : startRecording}
-                        disabled={isProcessing}
-                    >
-                        <div className="record-icon">{isRecording ? <div className="stop-icon"></div> : <div className="play-icon"></div>}</div>
-                        <span className="btn-text">{isProcessing ? 'Processing...' : isRecording ? 'Stop Recording' : 'Start Recording'}</span>
-                    </button>
+            {/* {isAllowed && ( */}
+            <div className="screen-recorder">
+                <button
+                    className={`record-btn ${isRecording ? 'recording' : ''} ${isAnimating && !isRecording ? 'disabled' : ''}`}
+                    onClick={handleRecordingToggle}
+                    disabled={isProcessing || (isAnimating && !isRecording)}
+                >
+                    <div className="record-icon">{isRecording ? <div className="stop-icon"></div> : <div className="play-icon"></div>}</div>
+                    <span className="btn-text">
+                        {isProcessing ? 'Processing...' : isRecording ? 'Stop Recording' : isAnimating ? 'Animating...' : 'Start Recording'}
+                    </span>
+                </button>
 
-                    {(isRecording || isProcessing) && (
-                        <div className="recording-status">
-                            <div className="recording-indicator">
-                                <div className="pulse-dot"></div>
-                                <span className="status-text">{isProcessing ? 'Processing...' : `REC ${formatTime(recordingTime)}`}</span>
-                            </div>
+                {(isRecording || isProcessing) && (
+                    <div className="recording-status">
+                        <div className="recording-indicator">
+                            <div className="pulse-dot"></div>
+                            <span className="status-text">{isProcessing ? 'Processing...' : `REC ${formatTime(recordingTime)}`}</span>
                         </div>
-                    )}
-                </div>
-            )}
+                    </div>
+                )}
+            </div>
+            {/* )} */}
 
             <style jsx>{`
                 .screen-recorder {
@@ -309,10 +353,17 @@ const ScreenRecorder = () => {
                     transition: all 0.1s ease;
                 }
 
-                .record-btn:disabled {
+                .record-btn:disabled,
+                .record-btn.disabled {
                     opacity: 0.6;
                     cursor: not-allowed;
                     transform: none;
+                }
+
+                .record-btn.disabled {
+                    background: rgba(255, 255, 255, 0.08);
+                    border-color: rgba(255, 255, 255, 0.15);
+                    color: rgba(255, 255, 255, 0.6);
                 }
 
                 .record-btn.recording {
@@ -466,6 +517,6 @@ const ScreenRecorder = () => {
             `}</style>
         </>
     );
-};
+});
 
 export default ScreenRecorder;

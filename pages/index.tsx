@@ -16,6 +16,13 @@ const Reall3dBrowser = dynamic(() => import('../components/Reall3d'), {
 });
 
 export default function Home() {
+    // Animation and recording state management
+    const [isAnimating, setIsAnimating] = useState(false);
+    const [stopRecordingVal, setStopRecordingVal] = useState(false);
+    const [shouldStartAnimation, setShouldStartAnimation] = useState(false);
+    const reall3dRef = useRef<any>(null);
+    const screenRecorderRef = useRef<any>(null);
+
     const carDetails = {
         manufacturer: 'پژو',
         model: '207',
@@ -120,10 +127,59 @@ export default function Home() {
         isShowBodyStatus ? hideCarBodyStatus() : showCarBodyStatus();
     };
 
+    // Handle animation start from recording
+    const handleStartAnimationWithRecording = () => {
+        console.log('handleStartAnimationWithRecording called');
+        setShouldStartAnimation(true);
+    };
+
+    // Handle animation pause (stop recording during pause)
+    const handleAnimationPause = () => {
+        console.log('----------pause inside index.ts-------------');
+        console.log('screenRecorderRef.current:', screenRecorderRef.current);
+        console.log('stopRecording method available:', typeof screenRecorderRef.current?.stopRecording);
+
+        setStopRecordingVal(true)
+    };
+
+    // Handle animation completion 
+    const handleAnimationComplete = () => {
+        setIsAnimating(false);
+        setShouldStartAnimation(false);
+    };
+
+    // Test refs after mount
+    useEffect(() => {
+        setTimeout(() => {
+            console.log('Testing refs after 3 seconds...');
+            console.log('screenRecorderRef.current:', screenRecorderRef.current);
+            console.log('Methods on ref:', Object.keys(screenRecorderRef.current || {}));
+            console.log('reall3dRef.current:', reall3dRef.current);
+            if (screenRecorderRef.current?.stopRecording) {
+                console.log('stopRecording method is available via ref');
+                // Test the method
+                console.log('Testing stopRecording method...');
+                try {
+                    // Don't actually call it, just check if it exists
+                    console.log('stopRecording function type:', typeof screenRecorderRef.current.stopRecording);
+                } catch (e) {
+                    console.log('Error testing stopRecording:', e);
+                }
+            } else {
+                console.log('stopRecording method is NOT available via ref');
+            }
+        }, 3000);
+    }, []);
+
     return (
         <div style={{ width: '100vw', height: '100vh' }}>
-            {/* <ScreenRecorder />
-            <CarInfoBox carDetails={carDetails} />
+            <ScreenRecorder
+                ref={screenRecorderRef}
+                onStartRecording={handleStartAnimationWithRecording}
+                isAnimating={isAnimating}
+                stopRecordingVal={stopRecordingVal}
+            />
+            {/*   <CarInfoBox carDetails={carDetails} />
             <ResetCameraButton onResetTheCamera={handleShowBodyStatus} />
             {isShowBodyStatus && (
                 <div className={'car-body-stat'}>
@@ -131,7 +187,13 @@ export default function Home() {
                     <CarBodyStatus status={statusValue.current} />
                 </div>
             )} */}
-            <Reall3dBrowser />
+            <Reall3dBrowser
+                ref={reall3dRef}
+                shouldStartAnimation={shouldStartAnimation}
+                onAnimationPause={handleAnimationPause}
+                onAnimationComplete={handleAnimationComplete}
+                onAnimationStart={() => setIsAnimating(true)}
+            />
             {/* <FooterLogoSwitch /> */}
         </div>
     );

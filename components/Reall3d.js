@@ -1,15 +1,14 @@
 // components/Reall3d.js
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useImperativeHandle } from 'react';
 import { Reall3dViewer } from '@reall3d/reall3dviewer';
 import '@reall3d/reall3dviewer/dist/style.css';
 import { performComplexAnimation } from '../utils/animationUtils.js';
 
-export default function Reall3d() {
+const Reall3d = React.forwardRef(({ shouldStartAnimation, onAnimationComplete, onAnimationStart, onAnimationPause }, ref) => {
     const containerRef = useRef(null);
     const viewerRef = useRef(null);
-    const [isAnimating, setIsAnimating] = useState(false);
 
     // URLs for the two PLY models
     // const MODEL_B = '/new_3DGS.ply';
@@ -80,10 +79,29 @@ export default function Reall3d() {
         // Store viewer instance in ref
         viewerRef.current = viewer;
 
-
+        // Custom animation function that handles callbacks
+        const handleComplexAnimation = async () => {
+            console.log('handleComplexAnimation called, callbacks:', {
+                onAnimationStart: typeof onAnimationStart,
+                onAnimationPause: typeof onAnimationPause,
+                onAnimationComplete: typeof onAnimationComplete
+            });
+            
+            if (onAnimationStart) {
+                onAnimationStart();
+            }
+            
+            try {
+                await performComplexAnimation(viewer, () => {}, onAnimationPause);
+            } finally {
+                if (onAnimationComplete) {
+                    onAnimationComplete();
+                }
+            }
+        };
 
         // Store animation function in viewer for external access
-        viewer.performComplexAnimation = () => performComplexAnimation(viewer, setIsAnimating);
+        viewer.performComplexAnimation = handleComplexAnimation;
         // Cleanup on component unmount
         return () => {
             const curr = viewerRef.current;
@@ -96,16 +114,23 @@ export default function Reall3d() {
         };
     }, [modelUrl]);
 
-    // Complex animation trigger function
-    const handleSmoothMove = () => {
-        const viewer = viewerRef.current;
-        if (!viewer || !viewer.performComplexAnimation || isAnimating) return;
+    // Watch for shouldStartAnimation prop and trigger animation
+    useEffect(() => {
+        if (shouldStartAnimation && viewerRef.current?.performComplexAnimation) {
+            viewerRef.current.performComplexAnimation();
+        }
+    }, [shouldStartAnimation]);
 
-        // Execute the complex animation sequence
-        viewer.performComplexAnimation();
-    };
+    // Expose animation trigger via ref
+    useImperativeHandle(ref, () => ({
+        startAnimation: () => {
+            if (viewerRef.current?.performComplexAnimation) {
+                viewerRef.current.performComplexAnimation();
+            }
+        }
+    }), []);
 
-    // Toggle between models
+    // Toggle between models (keeping for future use)
     const handleSwitch = () => {
         setModelUrl(prev => {
             const idx = MODELS.indexOf(prev);
@@ -117,29 +142,10 @@ export default function Reall3d() {
 
     return (
         <>
-            {/* Smooth animation button */}
-            <button
-                onClick={handleSmoothMove}
-                disabled={isAnimating}
-                style={{
-                    position: 'absolute',
-                    top: 35,
-                    right: 22,
-                    padding: '8px 12px',
-                    background: isAnimating ? '#666' : '#162455',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 4,
-                    cursor: isAnimating ? 'not-allowed' : 'pointer',
-                    opacity: isAnimating ? 0.6 : 1,
-                }}
-                className="ios-glass-theme"
-            >
-                {isAnimating ? 'Animating...' : 'Smooth Move'}
-            </button>
-
             {/* Viewer container */}
             <div id="viewer1" ref={containerRef} style={{ width: '100%', height: '100%', overflow: 'hidden' }} />
         </>
     );
-}
+});
+
+export default Reall3d;

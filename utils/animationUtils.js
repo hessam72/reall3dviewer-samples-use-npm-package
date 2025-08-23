@@ -48,9 +48,10 @@ export const animateProperty = (updateFn, duration) => {
  * Complex animation sequence for Reall3dViewer
  * @param {Object} viewer - Reall3dViewer instance
  * @param {Function} setIsAnimating - State setter for animation status
+ * @param {Function} onAnimationPause - Optional callback to trigger during pause (for stopping recording)
  * @returns {Promise} - Resolves when animation completes
  */
-export const performComplexAnimation = async (viewer, setIsAnimating) => {
+export const performComplexAnimation = async (viewer, setIsAnimating, onAnimationPause = null) => {
     if (!viewer.splatMesh) return;
     
     // Set animating state
@@ -146,7 +147,15 @@ export const performComplexAnimation = async (viewer, setIsAnimating) => {
             }
         }, 7000); // Total time for both rotations
 
-        // Step 4: Pause for 1 second
+        // Step 4: Pause for 1 second - trigger recording stop here
+        console.log('Animation reached pause point, onAnimationPause:', typeof onAnimationPause);
+        if (onAnimationPause) {
+            console.log('Calling onAnimationPause...');
+            onAnimationPause(); // Stop recording during pause
+        } else {
+            console.log('onAnimationPause is null or undefined');
+        }
+        
         await animateProperty(() => {
             // Do nothing, just wait
         }, 1000);
