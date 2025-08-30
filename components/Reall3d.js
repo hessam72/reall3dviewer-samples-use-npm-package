@@ -24,7 +24,7 @@ const Reall3d = React.forwardRef(({ shouldStartAnimation, onAnimationComplete, o
         if (!container) return;
 
         // Remove previous content (canvas, etc.)
-        container.innerHTML = '';
+        // container.innerHTML = '';
 
         // Clean up previous viewer instance
         if (viewerRef.current) {
@@ -62,6 +62,17 @@ const Reall3d = React.forwardRef(({ shouldStartAnimation, onAnimationComplete, o
         });
 
         console.log('viewer:   ', viewer.splatMesh);
+        
+        // Debug: Explore viewer properties to find canvas manipulation methods
+        console.log('Viewer instance properties:', Object.keys(viewer));
+        console.log('Viewer renderer:', viewer.renderer);
+        console.log('Viewer canvas:', viewer.renderer?.domElement);
+        
+        // Try to access the underlying Three.js scene or renderer
+        if (viewer.renderer) {
+            console.log('Renderer properties:', Object.keys(viewer.renderer));
+            console.log('Canvas context:', viewer.renderer.domElement?.getContext);
+        }
 
         // setTimeout(() => {
         //     viewer.splatMesh.scale.x = 2;
@@ -75,7 +86,9 @@ const Reall3d = React.forwardRef(({ shouldStartAnimation, onAnimationComplete, o
 
         // Load the selected PLY model
         viewer.addModel(modelUrl).catch(err => console.error('PLY loading error:', err));
-
+        
+        // HTML overlays are now handled directly in ScreenRecorder via canvas composition
+        
         // Store viewer instance in ref
         viewerRef.current = viewer;
 
@@ -84,13 +97,13 @@ const Reall3d = React.forwardRef(({ shouldStartAnimation, onAnimationComplete, o
             console.log('handleComplexAnimation called, callbacks:', {
                 onAnimationStart: typeof onAnimationStart,
                 onAnimationPause: typeof onAnimationPause,
-                onAnimationComplete: typeof onAnimationComplete
+                onAnimationComplete: typeof onAnimationComplete,
             });
-            
+
             if (onAnimationStart) {
                 onAnimationStart();
             }
-            
+
             try {
                 await performComplexAnimation(viewer, () => {}, onAnimationPause);
             } finally {
@@ -110,7 +123,7 @@ const Reall3d = React.forwardRef(({ shouldStartAnimation, onAnimationComplete, o
                 else if (typeof curr.dispose === 'function') curr.dispose();
             }
             viewerRef.current = null;
-            container.innerHTML = '';
+            // container.innerHTML = '';
         };
     }, [modelUrl]);
 
@@ -122,13 +135,17 @@ const Reall3d = React.forwardRef(({ shouldStartAnimation, onAnimationComplete, o
     }, [shouldStartAnimation]);
 
     // Expose animation trigger via ref
-    useImperativeHandle(ref, () => ({
-        startAnimation: () => {
-            if (viewerRef.current?.performComplexAnimation) {
-                viewerRef.current.performComplexAnimation();
-            }
-        }
-    }), []);
+    useImperativeHandle(
+        ref,
+        () => ({
+            startAnimation: () => {
+                if (viewerRef.current?.performComplexAnimation) {
+                    viewerRef.current.performComplexAnimation();
+                }
+            },
+        }),
+        [],
+    );
 
     // Toggle between models (keeping for future use)
     const handleSwitch = () => {
@@ -142,8 +159,14 @@ const Reall3d = React.forwardRef(({ shouldStartAnimation, onAnimationComplete, o
 
     return (
         <>
-            {/* Viewer container */}
-            <div id="viewer1" ref={containerRef} style={{ width: '100%', height: '100%', overflow: 'hidden' }} />
+            {/* Viewer container - overlays now handled by ScreenRecorder */}
+            <div id="viewer1" ref={containerRef} style={{ 
+                width: '100%', 
+                height: '100%', 
+                overflow: 'hidden'
+            }}>
+                {/* Canvas will be created here by Reall3dViewer */}
+            </div>
         </>
     );
 });

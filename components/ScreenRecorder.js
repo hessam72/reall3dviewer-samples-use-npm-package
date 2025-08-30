@@ -133,58 +133,152 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    // Simple direct canvas recording (like your old working version)
+    // Canvas recording with HTML overlay injection directly into video stream
     const startRecording = useCallback(() => {
         // Get the div with id="viewer1" from the DOM
         const viewerDiv = document.getElementById('viewer1');
 
         if (viewerDiv) {
             // Find the canvas inside the viewerDiv
-            const canvas = viewerDiv.querySelector('canvas');
+            const originalCanvas = viewerDiv.querySelector('canvas');
 
-            if (canvas) {
-                console.log('Canvas found:', canvas.width + 'x' + canvas.height);
+            if (originalCanvas) {
+                console.log('Canvas found:', originalCanvas.width + 'x' + originalCanvas.height);
 
                 try {
-                    // Capture the canvas stream at 60 FPS in Full HD with optimal settings
-                    const stream = canvas.captureStream(120); // 60 FPS for ultra-smooth recording
+                    // Create composite canvas that includes HTML overlays
+                    const compositeCanvas = document.createElement('canvas');
+                    compositeCanvas.width = originalCanvas.width || 1920;
+                    compositeCanvas.height = originalCanvas.height || 1080;
+                    const compositeCtx = compositeCanvas.getContext('2d');
 
-                    // Check if VP9 codec is supported, fallback to VP8 if not
-                    const mimeType = MediaRecorder.isTypeSupported('video/mp4;codecs=vp9')
-                        ? 'video/mp4;codecs=vp9'
-                        : MediaRecorder.isTypeSupported('video/mp4;codecs=vp8')
-                        ? 'video/mp4;codecs=vp8'
-                        : 'video/mp4';
+                    // Load logo image
+                    const logoImg = new Image();
+                    logoImg.crossOrigin = 'anonymous';
 
-                    console.log('Using MIME type:', mimeType);
+                    let isRecordingActive = true;
 
-                    recorderRef.current = new RecordRTC(stream, {
-                        type: 'video',
-                        mimeType: mimeType,
-                        videoBitsPerSecond: 20000000, // 20 Mbps for exceptional Full HD quality
-                        video: {
-                            width: 1920, // Full HD width
-                            height: 1080, // Full HD height
-                            frameRate: 120, // 60 FPS for buttery-smooth playback
-                        },
-                        // Additional quality settings
-                        timeSlice: 100, // Capture data every 100ms for smoother recording
-                        checkForInactiveTracks: true,
-                        bufferSize: 16384, // Larger buffer for better quality
-                    });
+                    const startRecordingWithOverlay = () => {
+                        // Animation loop to composite canvas + HTML overlays
+                        const drawCompositeFrame = () => {
+                            if (!isRecordingActive) return;
+
+                            // Clear composite canvas
+                            compositeCtx.clearRect(0, 0, compositeCanvas.width, compositeCanvas.height);
+
+                            // Draw original 3D canvas content
+                            try {
+                                compositeCtx.drawImage(originalCanvas, 0, 0, compositeCanvas.width, compositeCanvas.height);
+                            } catch (e) {
+                                // Fallback: black background if canvas can't be drawn
+                                compositeCtx.fillStyle = '#000000';
+                                compositeCtx.fillRect(0, 0, compositeCanvas.width, compositeCanvas.height);
+                            }
+
+                            // Draw logo overlay (bottom-left)
+                            if (logoImg.complete && logoImg.naturalWidth > 0) {
+                                const logoHeight = Math.min(compositeCanvas.width, compositeCanvas.height) * 0.06;
+                                const logoWidth = logoHeight * 3; // Proper aspect ratio
+                                const logoX = 30;
+                                const logoY = compositeCanvas.height - logoHeight - 30;
+
+                                compositeCtx.globalAlpha = 0.8;
+                                compositeCtx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
+                                compositeCtx.globalAlpha = 1.0;
+                            }
+
+                            // Draw text info panel
+                            // compositeCtx.font = 'bold 16px Arial, sans-serif';
+                            // compositeCtx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                            // const textX = 30;
+                            // const textY = compositeCanvas.height - 120;
+                            // const textWidth = 180;
+                            // const textHeight = 40;
+
+                            // // Background rectangle
+                            // compositeCtx.fillRect(textX, textY, textWidth, textHeight);
+
+                            // // Text
+                            // compositeCtx.fillStyle = 'white';
+                            // compositeCtx.fillText('Model Info Panel', textX + 10, textY + 25);
+
+                            requestAnimationFrame(drawCompositeFrame);
+                        };
+
+                        // Start composite drawing
+                        drawCompositeFrame();
+
+                        // Capture composite canvas stream
+                        const stream = compositeCanvas.captureStream(120);
+
+                        return stream;
+                    };
+
+                    // Create cleanup function that will be attached after RecordRTC is created
+                    const stopCompositeFunction = () => {
+                        isRecordingActive = false;
+                    };
+
+                    // Load logo and start recording
+                    logoImg.onload = () => {
+                        console.log('Logo loaded, starting composite recording');
+                        const stream = startRecordingWithOverlay();
+
+                        // Continue with RecordRTC setup...
+                        setupRecordRTC(stream);
+                    };
+
+                    logoImg.onerror = () => {
+                        console.warn('Logo failed to load, starting without logo');
+                        const stream = startRecordingWithOverlay();
+                        setupRecordRTC(stream);
+                    };
+
+                    logoImg.src = '/OmidCity.svg';
+
+                    // RecordRTC setup function
+                    const setupRecordRTC = stream => {
+                        // Check if VP9 codec is supported, fallback to VP8 if not
+                        const mimeType = MediaRecorder.isTypeSupported('video/mp4;codecs=vp9')
+                            ? 'video/mp4;codecs=vp9'
+                            : MediaRecorder.isTypeSupported('video/mp4;codecs=vp8')
+                            ? 'video/mp4;codecs=vp8'
+                            : 'video/mp4';
+
+                        console.log('Using MIME type:', mimeType);
+
+                        recorderRef.current = new RecordRTC(stream, {
+                            type: 'video',
+                            mimeType: mimeType,
+                            videoBitsPerSecond: 20000000, // 20 Mbps for exceptional Full HD quality
+                            video: {
+                                width: 1920, // Full HD width
+                                height: 1080, // Full HD height
+                                frameRate: 120, // 120 FPS for buttery-smooth playback
+                            },
+                            // Additional quality settings
+                            timeSlice: 100, // Capture data every 100ms for smoother recording
+                            checkForInactiveTracks: true,
+                            bufferSize: 16384, // Larger buffer for better quality
+                        });
+
+                        recorderRef.current.startRecording();
+                        setIsRecording(true);
+                        setRecordingTime(0);
+                        console.log('Recording started successfully with HTML overlays');
+
+                        // Attach cleanup function after RecordRTC is created
+                        recorderRef.current._stopComposite = stopCompositeFunction;
+
+                        // Trigger animation when recording starts
+                        if (onStartRecording) {
+                            onStartRecording();
+                        }
+                    };
                 } catch (streamError) {
-                    console.error('Error creating canvas stream:', streamError);
+                    console.error('Error creating composite canvas stream:', streamError);
                     alert('Failed to create recording stream. Please try again.');
                     return;
-                }
-                recorderRef.current.startRecording();
-                setIsRecording(true);
-                setRecordingTime(0);
-                console.log('Recording started successfully');
-
-                // Trigger animation when recording starts
-                if (onStartRecording) {
-                    onStartRecording();
                 }
             } else {
                 console.error('No canvas found inside viewer1');
@@ -208,6 +302,11 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
         }
         console.log('Proceeding with stop recording...');
         setIsProcessing(true);
+
+        // Stop composite canvas animation loop
+        if (recorderRef.current._stopComposite) {
+            recorderRef.current._stopComposite();
+        }
 
         recorderRef.current.stopRecording(() => {
             const blob = recorderRef.current.getBlob();
