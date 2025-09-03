@@ -14,6 +14,14 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
     const recorderRef = useRef(null);
     const timerRef = useRef(null);
     const [isAllowed, setIsAllowed] = useState(false);
+    
+    // Voice recording states
+    const [showVoicePrompt, setShowVoicePrompt] = useState(false);
+    const [includeVoice, setIncludeVoice] = useState(false);
+    const [audioPermissionGranted, setAudioPermissionGranted] = useState(false);
+    const [microphoneStream, setMicrophoneStream] = useState(null);
+    const [audioContext, setAudioContext] = useState(null);
+    const audioStreamRef = useRef(null);
 
     // Check URL parameter on component mount
     useEffect(() => {
@@ -126,6 +134,13 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
         stopRecording();
     }, [stopRecordingVal]);
 
+    // Cleanup audio resources on component unmount
+    useEffect(() => {
+        return () => {
+            cleanupAudioResources();
+        };
+    }, []);
+
     // Format time display
     const formatTime = seconds => {
         const mins = Math.floor(seconds / 60);
@@ -209,9 +224,27 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
                         drawCompositeFrame();
 
                         // Capture composite canvas stream
-                        const stream = compositeCanvas.captureStream(120);
+                        const videoStream = compositeCanvas.captureStream(120);
 
-                        return stream;
+                        // Combine video and audio streams if audio is provided
+                        if (audioStreamRef.current) {
+                            const combinedStream = new MediaStream();
+                            
+                            // Add video tracks
+                            videoStream.getVideoTracks().forEach(track => {
+                                combinedStream.addTrack(track);
+                            });
+                            
+                            // Add audio tracks from microphone
+                            audioStreamRef.current.getAudioTracks().forEach(track => {
+                                combinedStream.addTrack(track);
+                            });
+                            
+                            console.log('Combined stream created with audio:', combinedStream.getAudioTracks().length, 'audio tracks');
+                            return combinedStream;
+                        }
+
+                        return videoStream;
                     };
 
                     // Create cleanup function that will be attached after RecordRTC is created
@@ -238,6 +271,8 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
 
                     // RecordRTC setup function
                     const setupRecordRTC = stream => {
+                        const hasAudio = stream.getAudioTracks().length > 0;
+                        
                         // Check if VP9 codec is supported, fallback to VP8 if not
                         const mimeType = MediaRecorder.isTypeSupported('video/mp4;codecs=vp9')
                             ? 'video/mp4;codecs=vp9'
@@ -245,9 +280,9 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
                             ? 'video/mp4;codecs=vp8'
                             : 'video/mp4';
 
-                        console.log('Using MIME type:', mimeType);
+                        console.log('Using MIME type:', mimeType, '| Has audio:', hasAudio);
 
-                        recorderRef.current = new RecordRTC(stream, {
+                        const recordConfig = {
                             type: 'video',
                             mimeType: mimeType,
                             videoBitsPerSecond: 20000000, // 20 Mbps for exceptional Full HD quality
@@ -260,7 +295,17 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
                             timeSlice: 100, // Capture data every 100ms for smoother recording
                             checkForInactiveTracks: true,
                             bufferSize: 16384, // Larger buffer for better quality
-                        });
+                        };
+
+                        // Add audio configuration if audio stream exists
+                        if (hasAudio) {
+                            // Note: RecordRTC will handle audio configuration automatically
+                            // We can set audio quality in the MediaRecorder options
+                            recordConfig.numberOfAudioChannels = 2; // Stereo
+                            recordConfig.desiredSampRate = 48000; // High-quality audio sampling
+                        }
+
+                        recorderRef.current = new RecordRTC(stream, recordConfig);
 
                         recorderRef.current.startRecording();
                         setIsRecording(true);
@@ -334,6 +379,9 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
             setShowSharePopup(true); // Show the sharing popup
             setIsRecording(false);
             setIsProcessing(false);
+            
+            // Clean up audio resources after recording
+            cleanupAudioResources();
 
             console.log('Recording processed and downloaded successfully');
         });
@@ -372,17 +420,123 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
         [stopRecording],
     );
 
+    // Voice recording permission handler
+    const requestMicrophonePermission = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            setAudioPermissionGranted(true);
+            setMicrophoneStream(stream);
+            audioStreamRef.current = stream;
+            console.log('Microphone permission granted');
+            return stream;
+        } catch (error) {
+            console.error('Microphone permission denied:', error);
+            setAudioPermissionGranted(false);
+            alert('میکروفون در دسترس نیست. ضبط بدون صدا ادامه می‌یابد.');
+            return null;
+        }
+    };
+
+    // Handle voice prompt response
+    const handleVoicePromptResponse = async (includeAudio) => {
+        setShowVoicePrompt(false);
+        setIncludeVoice(includeAudio);
+        
+        if (includeAudio) {
+            const audioStream = await requestMicrophonePermission();
+            if (audioStream) {
+                // audioStreamRef.current is already set by requestMicrophonePermission
+                startRecording();
+            } else {
+                // Start recording without audio
+                startRecording();
+            }
+        } else {
+            // Start recording without audio
+            startRecording();
+        }
+    };
+
     // Handle recording start/stop - only allow start if not animating
     const handleRecordingToggle = () => {
         if (isRecording) {
             stopRecording();
         } else if (!isAnimating) {
-            startRecording();
+            // Show voice recording prompt before starting
+            setShowVoicePrompt(true);
         }
+    };
+
+    // Cleanup audio resources
+    const cleanupAudioResources = () => {
+        if (microphoneStream) {
+            microphoneStream.getTracks().forEach(track => track.stop());
+            setMicrophoneStream(null);
+        }
+        if (audioStreamRef.current) {
+            audioStreamRef.current.getTracks().forEach(track => track.stop());
+            audioStreamRef.current = null;
+        }
+        if (audioContext) {
+            audioContext.close();
+            setAudioContext(null);
+        }
+        setAudioPermissionGranted(false);
+        setIncludeVoice(false);
     };
 
     return (
         <>
+            {/* Voice Recording Prompt Modal */}
+            {showVoicePrompt && (
+                <div className="voice-prompt-overlay">
+                    <div className="voice-prompt-modal">
+                        <div className="voice-prompt-header">
+                            <div className="voice-prompt-icon">
+                                🎤
+                            </div>
+                            <h3>ضبط صدا</h3>
+                        </div>
+                        <div className="voice-prompt-content">
+                            <p>آیا می‌خواهید صدای خود را نیز در ویدیو ضبط کنید؟</p>
+                            <div className="voice-prompt-features">
+                                <div className="feature-item">
+                                    <span className="feature-icon">✅</span>
+                                    <span>کیفیت صدای HD</span>
+                                </div>
+                                <div className="feature-item">
+                                    <span className="feature-icon">🔒</span>
+                                    <span>امن و محفوظ</span>
+                                </div>
+                                <div className="feature-item">
+                                    <span className="feature-icon">⚡</span>
+                                    <span>پردازش سریع</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="voice-prompt-actions">
+                            <button
+                                className="voice-btn voice-btn-primary"
+                                onClick={() => handleVoicePromptResponse(true)}
+                            >
+                                <span className="btn-icon">🎙️</span>
+                                بله، با صدا ضبط کن
+                            </button>
+                            <button
+                                className="voice-btn voice-btn-secondary"
+                                onClick={() => handleVoicePromptResponse(false)}
+                            >
+                                <span className="btn-icon">🔇</span>
+                                فقط ویدیو
+                            </button>
+                        </div>
+                        <div className="voice-prompt-note">
+                            <small>💡 برای ضبط صدا، اجازه دسترسی به میکروفون درخواست می‌شود</small>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
             {/* {isAllowed && ( */}
             <>
                 <div className="screen-recorder">
@@ -641,6 +795,219 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
                     .pulse-dot {
                         width: 6px;
                         height: 6px;
+                    }
+                }
+
+                /* Voice Recording Prompt Styles */
+                .voice-prompt-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.7);
+                    backdrop-filter: blur(10px);
+                    -webkit-backdrop-filter: blur(10px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 2000;
+                    animation: fadeIn 0.3s ease;
+                }
+
+                @keyframes fadeIn {
+                    from {
+                        opacity: 0;
+                    }
+                    to {
+                        opacity: 1;
+                    }
+                }
+
+                .voice-prompt-modal {
+                    background: rgba(255, 255, 255, 0.95);
+                    backdrop-filter: blur(20px) saturate(180%);
+                    -webkit-backdrop-filter: blur(20px) saturate(180%);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 24px;
+                    padding: 32px;
+                    max-width: 420px;
+                    width: 90vw;
+                    text-align: center;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+                    animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+                    color: #1a1a1a;
+                    direction: rtl;
+                }
+
+                @keyframes slideIn {
+                    from {
+                        opacity: 0;
+                        transform: translateY(30px) scale(0.9);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+                }
+
+                .voice-prompt-header {
+                    margin-bottom: 24px;
+                }
+
+                .voice-prompt-icon {
+                    font-size: 48px;
+                    margin-bottom: 12px;
+                    display: block;
+                    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+                }
+
+                .voice-prompt-header h3 {
+                    margin: 0;
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: #1a1a1a;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+                }
+
+                .voice-prompt-content p {
+                    font-size: 16px;
+                    color: #4a4a4a;
+                    margin: 0 0 24px 0;
+                    line-height: 1.5;
+                    font-weight: 400;
+                }
+
+                .voice-prompt-features {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                    margin-bottom: 28px;
+                    text-align: right;
+                }
+
+                .feature-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 12px 16px;
+                    background: rgba(34, 197, 94, 0.08);
+                    border-radius: 12px;
+                    border: 1px solid rgba(34, 197, 94, 0.15);
+                }
+
+                .feature-icon {
+                    font-size: 16px;
+                    flex-shrink: 0;
+                }
+
+                .feature-item span:last-child {
+                    font-size: 14px;
+                    color: #2d2d2d;
+                    font-weight: 500;
+                }
+
+                .voice-prompt-actions {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                    margin-bottom: 20px;
+                }
+
+                .voice-btn {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 10px;
+                    padding: 16px 24px;
+                    border-radius: 16px;
+                    font-size: 15px;
+                    font-weight: 600;
+                    font-family: inherit;
+                    cursor: pointer;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    border: none;
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .voice-btn::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%);
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                }
+
+                .voice-btn:hover::before {
+                    opacity: 1;
+                }
+
+                .voice-btn-primary {
+                    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+                    color: white;
+                    box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                }
+
+                .voice-btn-primary:hover {
+                    transform: translateY(-2px) scale(1.02);
+                    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+                }
+
+                .voice-btn-secondary {
+                    background: rgba(107, 114, 128, 0.1);
+                    color: #4b5563;
+                    border: 1px solid rgba(107, 114, 128, 0.2);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                }
+
+                .voice-btn-secondary:hover {
+                    background: rgba(107, 114, 128, 0.15);
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                }
+
+                .btn-icon {
+                    font-size: 16px;
+                    flex-shrink: 0;
+                }
+
+                .voice-prompt-note {
+                    padding: 12px 16px;
+                    background: rgba(59, 130, 246, 0.08);
+                    border: 1px solid rgba(59, 130, 246, 0.15);
+                    border-radius: 12px;
+                    text-align: center;
+                }
+
+                .voice-prompt-note small {
+                    font-size: 12px;
+                    color: #3b82f6;
+                    font-weight: 500;
+                    line-height: 1.4;
+                }
+
+                @media (max-width: 480px) {
+                    .voice-prompt-modal {
+                        padding: 24px;
+                        margin: 20px;
+                    }
+
+                    .voice-prompt-header h3 {
+                        font-size: 20px;
+                    }
+
+                    .voice-prompt-content p {
+                        font-size: 15px;
+                    }
+
+                    .voice-btn {
+                        padding: 14px 20px;
+                        font-size: 14px;
                     }
                 }
             `}</style>
