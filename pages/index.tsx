@@ -7,6 +7,8 @@ import Car‌BodyStatBox from '../components/CarBodyStatusBox';
 import ResetCameraButton from '../components/resetCamButton';
 import GLBViewer from '../components/GLBViewer';
 import FooterLogoSwitch from '../components/FooterLogo';
+import CarLoadingScreen from '../components/CarLoadingScreen';
+import useCarLoading from '../hooks/useCarLoading';
 
 const ScreenRecorder = dynamic(() => import('../components/ScreenRecorder'), {
     ssr: false,
@@ -16,6 +18,9 @@ const Reall3dBrowser = dynamic(() => import('../components/Reall3d'), {
 });
 
 export default function Home() {
+    // Loading state management
+    const { isLoading, finishLoading } = useCarLoading(true, 4000);
+    
     // Animation and recording state management
     const [isAnimating, setIsAnimating] = useState(false);
     const [stopRecordingVal, setStopRecordingVal] = useState(false);
@@ -110,6 +115,7 @@ export default function Home() {
         },
     ];
     const [isShowBodyStatus, setIsShowBodyStatus] = useState(false);
+    const [is3DViewerReady, setIs3DViewerReady] = useState(false);
 
     const showCarBodyStatus = () => {
         setIsShowBodyStatus(true);
@@ -121,6 +127,21 @@ export default function Home() {
         setIsShowBodyStatus(false);
         statusValue.current = 100;
     };
+    
+    // Handle loading completion when 3D viewer is ready
+    const handleLoadingComplete = () => {
+        console.log('3D Viewer finished loading');
+        finishLoading();
+    };
+    
+    // Trigger loading completion after a delay to simulate loading
+    useEffect(() => {
+        const loadingTimer = setTimeout(() => {
+            handleLoadingComplete();
+        }, 2000); // Simulated loading time
+        
+        return () => clearTimeout(loadingTimer);
+    }, []);
 
 
     const handleShowBodyStatus = () => {
@@ -172,29 +193,46 @@ export default function Home() {
     }, []);
 
     return (
-        <div style={{ width: '100vw', height: '100vh' }}>
-            <ScreenRecorder
-                ref={screenRecorderRef}
-                onStartRecording={handleStartAnimationWithRecording}
-                isAnimating={isAnimating}
-                stopRecordingVal={stopRecordingVal}
+        <>
+            {/* Beautiful Car-Themed Loading Screen */}
+            <CarLoadingScreen 
+                isLoading={isLoading} 
+                onComplete={() => console.log('Loading animation completed')}
             />
-            <CarInfoBox carDetails={carDetails} />
-            <ResetCameraButton onResetTheCamera={handleShowBodyStatus} />
-            {isShowBodyStatus && (
-                <div className={'car-body-stat'}>
-                    <Car‌BodyStatBox carBodyStat={carBodyStats} />
-                    <CarBodyStatus status={statusValue.current} />
-                </div>
-            )}
-            <Reall3dBrowser
-                ref={reall3dRef}
-                shouldStartAnimation={shouldStartAnimation}
-                onAnimationPause={handleAnimationPause}
-                onAnimationComplete={handleAnimationComplete}
-                onAnimationStart={() => setIsAnimating(true)}
-            />
-            <FooterLogoSwitch />
-        </div>
+            
+            {/* Main App Content */}
+            <div 
+                style={{ 
+                    width: '100vw', 
+                    height: '100vh',
+                    opacity: isLoading ? 0 : 1,
+                    transition: 'opacity 0.8s ease-in-out',
+                    pointerEvents: isLoading ? 'none' : 'auto'
+                }}
+            >
+                <ScreenRecorder
+                    ref={screenRecorderRef}
+                    onStartRecording={handleStartAnimationWithRecording}
+                    isAnimating={isAnimating}
+                    stopRecordingVal={stopRecordingVal}
+                />
+                <CarInfoBox carDetails={carDetails} />
+                <ResetCameraButton onResetTheCamera={handleShowBodyStatus} />
+                {isShowBodyStatus && (
+                    <div className={'car-body-stat'}>
+                        <Car‌BodyStatBox carBodyStat={carBodyStats} />
+                        <CarBodyStatus status={statusValue.current} />
+                    </div>
+                )}
+                <Reall3dBrowser
+                    ref={reall3dRef}
+                    shouldStartAnimation={shouldStartAnimation}
+                    onAnimationPause={handleAnimationPause}
+                    onAnimationComplete={handleAnimationComplete}
+                    onAnimationStart={() => setIsAnimating(true)}
+                />
+                <FooterLogoSwitch />
+            </div>
+        </>
     );
 }
