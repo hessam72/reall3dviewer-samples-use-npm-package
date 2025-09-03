@@ -20,7 +20,7 @@ const Reall3dBrowser = dynamic(() => import('../components/Reall3d'), {
 export default function Home() {
     // Loading state management
     const { isLoading, finishLoading } = useCarLoading(true, 4000);
-    
+
     // Animation and recording state management
     const [isAnimating, setIsAnimating] = useState(false);
     const [stopRecordingVal, setStopRecordingVal] = useState(false);
@@ -127,19 +127,19 @@ export default function Home() {
         setIsShowBodyStatus(false);
         statusValue.current = 100;
     };
-    
+
     // Handle loading completion when 3D viewer is ready
     const handleLoadingComplete = () => {
         console.log('3D Viewer finished loading');
         finishLoading();
     };
-    
+
     // Trigger loading completion after a delay to simulate loading
     useEffect(() => {
         const loadingTimer = setTimeout(() => {
             handleLoadingComplete();
         }, 2000); // Simulated loading time
-        
+
         return () => clearTimeout(loadingTimer);
     }, []);
 
@@ -195,15 +195,16 @@ export default function Home() {
     return (
         <>
             {/* Beautiful Car-Themed Loading Screen */}
-            <CarLoadingScreen 
-                isLoading={isLoading} 
+            <CarLoadingScreen
+                isLoading={isLoading}
+                // isLoading={isLoading} 
                 onComplete={() => console.log('Loading animation completed')}
             />
-            
+
             {/* Main App Content */}
-            <div 
-                style={{ 
-                    width: '100vw', 
+            <div
+                style={{
+                    width: '100vw',
                     height: '100vh',
                     opacity: isLoading ? 0 : 1,
                     transition: 'opacity 0.8s ease-in-out',

@@ -62,23 +62,40 @@ const CarLoadingScreen = ({ isLoading = true, onComplete }) => {
             
             {/* Main loading content */}
             <div className="loading-content">
-                {/* Animated Car SVG */}
+                {/* Animated Modern Car SVG */}
                 <div className="car-container">
                     <div className="car-body">
-                        <svg viewBox="0 0 400 200" className="car-svg">
-                            {/* Car Body */}
+                        <svg viewBox="0 0 500 300" className="car-svg">
                             <defs>
-                                <linearGradient id="carGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stopColor="#ff6b6b" />
-                                    <stop offset="50%" stopColor="#4ecdc4" />
-                                    <stop offset="100%" stopColor="#45b7d1" />
+                                {/* Gradients */}
+                                <linearGradient id="carBodyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#e74c3c" />
+                                    <stop offset="50%" stopColor="#c0392b" />
+                                    <stop offset="100%" stopColor="#a93226" />
                                 </linearGradient>
-                                <linearGradient id="wheelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <linearGradient id="carRoofGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stopColor="#2c3e50" />
                                     <stop offset="100%" stopColor="#34495e" />
                                 </linearGradient>
+                                <linearGradient id="wheelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#2c3e50" />
+                                    <stop offset="50%" stopColor="#34495e" />
+                                    <stop offset="100%" stopColor="#2c3e50" />
+                                </linearGradient>
+                                <linearGradient id="windowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="rgba(135, 206, 235, 0.9)" />
+                                    <stop offset="100%" stopColor="rgba(70, 130, 180, 0.6)" />
+                                </linearGradient>
+                                
+                                {/* Filters */}
+                                <filter id="carShadow" x="-50%" y="-50%" width="200%" height="200%">
+                                    <feDropShadow dx="0" dy="8" stdDeviation="6" floodColor="rgba(0,0,0,0.3)"/>
+                                </filter>
+                                <filter id="wheelShadow" x="-50%" y="-50%" width="200%" height="200%">
+                                    <feDropShadow dx="0" dy="4" stdDeviation="3" floodColor="rgba(0,0,0,0.5)"/>
+                                </filter>
                                 <filter id="glow">
-                                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
                                     <feMerge>
                                         <feMergeNode in="coloredBlur"/>
                                         <feMergeNode in="SourceGraphic"/>
@@ -86,38 +103,95 @@ const CarLoadingScreen = ({ isLoading = true, onComplete }) => {
                                 </filter>
                             </defs>
                             
-                            {/* Car body */}
+                            {/* Car Shadow */}
+                            <ellipse cx="250" cy="240" rx="120" ry="20" fill="rgba(0,0,0,0.2)" className="car-shadow" />
+                            
+                            {/* Main Car Body */}
                             <path
-                                d="M80 120 L320 120 L330 110 L340 100 L340 90 L330 80 L310 70 L280 70 L270 75 L230 75 L220 70 L180 70 L170 75 L120 75 L110 80 L90 90 L80 100 Z"
-                                fill="url(#carGradient)"
+                                d="M100 180 L380 180 L390 170 L400 160 L400 150 L390 140 L370 130 L330 130 L320 135 L180 135 L170 130 L130 130 L110 140 L100 150 Z"
+                                fill="url(#carBodyGradient)"
                                 className="car-main-body"
-                                filter="url(#glow)"
+                                filter="url(#carShadow)"
                             />
                             
-                            {/* Car windows */}
+                            {/* Car Roof */}
                             <path
-                                d="M120 75 L270 75 L280 70 L310 70 L320 80 L310 90 L130 90 L120 80 Z"
-                                fill="rgba(135, 206, 235, 0.7)"
+                                d="M140 135 L360 135 L370 130 L350 120 L320 115 L180 115 L150 120 L130 130 Z"
+                                fill="url(#carRoofGradient)"
+                                className="car-roof"
+                            />
+                            
+                            {/* Windows */}
+                            <path
+                                d="M160 130 L340 130 L350 125 L330 118 L170 118 L150 125 Z"
+                                fill="url(#windowGradient)"
                                 className="car-window"
                             />
                             
-                            {/* Car details */}
-                            <rect x="90" y="95" width="20" height="8" rx="4" fill="#ffd93d" className="headlight" />
-                            <rect x="300" y="95" width="20" height="8" rx="4" fill="#ff6b6b" className="taillight" />
+                            {/* Window Frames */}
+                            <rect x="245" y="118" width="10" height="17" fill="#2c3e50" className="window-frame" />
                             
-                            {/* Wheels */}
-                            <circle cx="130" cy="135" r="15" fill="url(#wheelGradient)" className="wheel wheel-front" />
-                            <circle cx="130" cy="135" r="8" fill="#1a1a1a" className="wheel-center" />
-                            <circle cx="280" cy="135" r="15" fill="url(#wheelGradient)" className="wheel wheel-back" />
-                            <circle cx="280" cy="135" r="8" fill="#1a1a1a" className="wheel-center" />
+                            {/* Front Grille */}
+                            <rect x="95" y="150" width="15" height="25" rx="7" fill="#1a1a1a" className="front-grille" />
+                            <rect x="98" y="153" width="9" height="3" fill="#444" />
+                            <rect x="98" y="158" width="9" height="3" fill="#444" />
+                            <rect x="98" y="163" width="9" height="3" fill="#444" />
+                            <rect x="98" y="168" width="9" height="3" fill="#444" />
                             
-                            {/* Wheel spokes */}
-                            <g className="wheel-spokes">
-                                <line x1="125" y1="135" x2="135" y2="135" stroke="#666" strokeWidth="1" />
-                                <line x1="130" y1="130" x2="130" y2="140" stroke="#666" strokeWidth="1" />
-                                <line x1="275" y1="135" x2="285" y2="135" stroke="#666" strokeWidth="1" />
-                                <line x1="280" y1="130" x2="280" y2="140" stroke="#666" strokeWidth="1" />
+                            {/* Headlights */}
+                            <circle cx="110" cy="155" r="8" fill="#f8f9fa" className="headlight front-light" filter="url(#glow)" />
+                            <circle cx="110" cy="155" r="5" fill="#ffd93d" className="headlight-inner" />
+                            
+                            {/* Taillights */}
+                            <circle cx="390" cy="155" r="6" fill="#e74c3c" className="taillight" />
+                            <circle cx="390" cy="165" r="4" fill="#f39c12" className="turn-signal" />
+                            
+                            {/* Door Lines */}
+                            <path d="M180 140 L180 175" stroke="#a93226" strokeWidth="2" className="door-line" />
+                            <path d="M320 140 L320 175" stroke="#a93226" strokeWidth="2" className="door-line" />
+                            
+                            {/* Door Handles */}
+                            <rect x="200" y="157" width="8" height="3" rx="1.5" fill="#2c3e50" className="door-handle" />
+                            <rect x="290" y="157" width="8" height="3" rx="1.5" fill="#2c3e50" className="door-handle" />
+                            
+                            {/* Front Wheel */}
+                            <g className="wheel-group front-wheel">
+                                <circle cx="150" cy="200" r="25" fill="url(#wheelGradient)" className="wheel-outer" filter="url(#wheelShadow)" />
+                                <circle cx="150" cy="200" r="18" fill="#1a1a1a" className="wheel-tire" />
+                                <circle cx="150" cy="200" r="12" fill="#2c3e50" className="wheel-rim" />
+                                <circle cx="150" cy="200" r="8" fill="#34495e" className="wheel-center" />
+                                {/* Spokes */}
+                                <g className="wheel-spokes">
+                                    <line x1="142" y1="200" x2="158" y2="200" stroke="#555" strokeWidth="2" />
+                                    <line x1="150" y1="192" x2="150" y2="208" stroke="#555" strokeWidth="2" />
+                                    <line x1="145" y1="195" x2="155" y2="205" stroke="#555" strokeWidth="1.5" />
+                                    <line x1="155" y1="195" x2="145" y2="205" stroke="#555" strokeWidth="1.5" />
+                                </g>
+                                <circle cx="150" cy="200" r="3" fill="#666" className="wheel-bolt" />
                             </g>
+                            
+                            {/* Rear Wheel */}
+                            <g className="wheel-group rear-wheel">
+                                <circle cx="350" cy="200" r="25" fill="url(#wheelGradient)" className="wheel-outer" filter="url(#wheelShadow)" />
+                                <circle cx="350" cy="200" r="18" fill="#1a1a1a" className="wheel-tire" />
+                                <circle cx="350" cy="200" r="12" fill="#2c3e50" className="wheel-rim" />
+                                <circle cx="350" cy="200" r="8" fill="#34495e" className="wheel-center" />
+                                {/* Spokes */}
+                                <g className="wheel-spokes">
+                                    <line x1="342" y1="200" x2="358" y2="200" stroke="#555" strokeWidth="2" />
+                                    <line x1="350" y1="192" x2="350" y2="208" stroke="#555" strokeWidth="2" />
+                                    <line x1="345" y1="195" x2="355" y2="205" stroke="#555" strokeWidth="1.5" />
+                                    <line x1="355" y1="195" x2="345" y2="205" stroke="#555" strokeWidth="1.5" />
+                                </g>
+                                <circle cx="350" cy="200" r="3" fill="#666" className="wheel-bolt" />
+                            </g>
+                            
+                            {/* Side Mirror */}
+                            <ellipse cx="130" cy="145" rx="4" ry="2" fill="#2c3e50" className="side-mirror" />
+                            
+                            {/* Antenna */}
+                            <line x1="370" y1="115" x2="375" y2="105" stroke="#2c3e50" strokeWidth="2" className="antenna" />
+                            <circle cx="375" cy="105" r="1.5" fill="#e74c3c" className="antenna-tip" />
                         </svg>
                         
                         {/* Moving road lines */}
@@ -265,20 +339,38 @@ const CarLoadingScreen = ({ isLoading = true, onComplete }) => {
                 
                 @keyframes carBounce {
                     0%, 100% { transform: translateY(0px); }
-                    50% { transform: translateY(-8px); }
+                    50% { transform: translateY(-12px); }
+                }
+                
+                .car-shadow {
+                    animation: shadowPulse 2s ease-in-out infinite;
+                }
+                
+                @keyframes shadowPulse {
+                    0%, 100% { transform: scale(1) translateY(0px); opacity: 0.2; }
+                    50% { transform: scale(1.1) translateY(-2px); opacity: 0.3; }
                 }
                 
                 .car-main-body {
-                    animation: colorShift 4s ease-in-out infinite;
+                    animation: bodyShine 3s ease-in-out infinite;
                     transform-origin: center;
                 }
                 
-                @keyframes colorShift {
-                    0%, 100% { filter: hue-rotate(0deg) brightness(1); }
-                    50% { filter: hue-rotate(30deg) brightness(1.2); }
+                @keyframes bodyShine {
+                    0%, 100% { filter: brightness(1) saturate(1); }
+                    50% { filter: brightness(1.3) saturate(1.4); }
                 }
                 
-                .wheel {
+                .car-roof {
+                    animation: roofGlow 4s ease-in-out infinite alternate;
+                }
+                
+                @keyframes roofGlow {
+                    from { filter: brightness(1); }
+                    to { filter: brightness(1.2); }
+                }
+                
+                .wheel-group {
                     animation: wheelSpin 1s linear infinite;
                     transform-origin: center;
                 }
@@ -288,13 +380,59 @@ const CarLoadingScreen = ({ isLoading = true, onComplete }) => {
                     to { transform: rotate(360deg); }
                 }
                 
-                .headlight {
-                    animation: blink 2s ease-in-out infinite;
+                .front-wheel {
+                    transform-origin: 150px 200px;
                 }
                 
-                @keyframes blink {
+                .rear-wheel {
+                    transform-origin: 350px 200px;
+                }
+                
+                .headlight {
+                    animation: headlightPulse 2s ease-in-out infinite;
+                }
+                
+                @keyframes headlightPulse {
+                    0%, 100% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.8; transform: scale(1.1); }
+                }
+                
+                .taillight {
+                    animation: taillightBlink 1.5s ease-in-out infinite;
+                }
+                
+                @keyframes taillightBlink {
+                    0%, 85%, 100% { opacity: 1; }
+                    90%, 95% { opacity: 0.4; }
+                }
+                
+                .turn-signal {
+                    animation: turnSignalFlash 1s ease-in-out infinite;
+                }
+                
+                @keyframes turnSignalFlash {
+                    0%, 50%, 100% { opacity: 0.3; }
+                    25%, 75% { opacity: 1; }
+                }
+                
+                .antenna {
+                    animation: antennaWave 3s ease-in-out infinite;
+                    transform-origin: 370px 115px;
+                }
+                
+                @keyframes antennaWave {
+                    0%, 100% { transform: rotate(0deg); }
+                    25% { transform: rotate(2deg); }
+                    75% { transform: rotate(-2deg); }
+                }
+                
+                .side-mirror {
+                    animation: mirrorGlint 4s ease-in-out infinite;
+                }
+                
+                @keyframes mirrorGlint {
                     0%, 90%, 100% { opacity: 1; }
-                    95% { opacity: 0.3; }
+                    95% { opacity: 0.6; filter: brightness(1.5); }
                 }
                 
                 .road-container {
