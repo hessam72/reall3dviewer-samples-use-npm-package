@@ -177,8 +177,8 @@ const ScreenRecorder = React.forwardRef(({ onStartRecording, isAnimating, stopRe
 
                             // Draw logo overlay (bottom-left)
                             if (logoImg.complete && logoImg.naturalWidth > 0) {
-                                const logoHeight = Math.min(compositeCanvas.width, compositeCanvas.height) * 0.06;
-                                const logoWidth = logoHeight * 3; // Proper aspect ratio
+                                const logoHeight = Math.min(compositeCanvas.width, compositeCanvas.height) * 0.18;
+                                const logoWidth = logoHeight * 3.5; // Proper aspect ratio
                                 const logoX = 30;
                                 const logoY = compositeCanvas.height - logoHeight - 30;
 
