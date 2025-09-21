@@ -1,11 +1,11 @@
 module.exports = {
     apps: [
         {
-            name: 'PLY-car-App',
+            name: 'PLY-car-App1',
             script: 'npm',
             args: 'run start',
             env: {
-                PORT: 3019, // Set the port for this instance
+                PORT: 3024, // Set the port for this instance
                 NODE_ENV: 'production',
             },
         },
