@@ -38,7 +38,7 @@ const fetchCarData = async (carId: string): Promise<CarData> => {
     }
 };
 
-export default function Home() {
+export default function HomeComponent() {
     const carId = useCarId();
 
     // State management
