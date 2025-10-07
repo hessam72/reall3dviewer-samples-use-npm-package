@@ -9,6 +9,7 @@ import GLBViewer from '../components/GLBViewer';
 import FooterLogoSwitch from '../components/FooterLogo';
 import CarLoadingScreen from '../components/CarLoadingScreen';
 import useCarLoading from '../hooks/useCarLoading';
+import { CarData } from '../types/car';
 
 const ScreenRecorder = dynamic(() => import('../components/ScreenRecorder'), {
     ssr: false,
@@ -17,9 +18,30 @@ const Reall3dBrowser = dynamic(() => import('../components/Reall3d'), {
     ssr: false,
 });
 
+// Add API service
+const fetchCarData = async (carId: string): Promise<CarData> => {
+    try {
+        const response = await fetch(`/api/cars/${carId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch car data');
+        return response.json();
+    } catch (error) {
+        console.error('Error fetching car data:', error);
+        throw error;
+    }
+};
+
 export default function Home() {
-    // Loading state management
-    const { isLoading, finishLoading } = useCarLoading(true, 4000);
+    // State management
+    const { isLoading: isInitialLoading, finishLoading } = useCarLoading(true, 4000);
+    const [isDataLoading, setIsDataLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [carData, setCarData] = useState<CarData | null>(null);
 
     // Animation and recording state management
     const [isAnimating, setIsAnimating] = useState(false);
@@ -49,71 +71,71 @@ export default function Home() {
     ];
     const statusValue = useRef(100);
 
-    const damagedParts = [
-        {
-            partName: 'car_door_left',
-            status: 'replaced',
-            partModalData: {
-                title: 'وضعیت بدنه',
-                imageUrl: '/img/door.png',
-                description: 'درب جلو سمت راننده تعویض',
-            },
-        },
-        {
-            partName: 'car_door_right',
-            status: 'scratch',
-            partModalData: {
-                title: 'وضعیت بدنه',
-                imageUrl: '/img/door-right.png',
-                description: 'درب جلو سمت شاگرد خط و خش جزیی',
-            },
-        },
-        {
-            partName: 'car_tier_front_right',
-            status: 'damaged',
-            partModalData: {
-                title: 'وضعیت بدنه',
-                imageUrl: '/img/tire.png',
-                description: 'لاستیک ها - 50%',
-            },
-        },
-        {
-            partName: 'car_tier_front_left',
-            status: 'damaged',
-            partModalData: {
-                title: 'وضعیت بدنه',
-                imageUrl: '/img/tire.png',
-                description: 'لاستیک ها - 50%',
-            },
-        },
-        {
-            partName: 'car_roof',
-            status: 'scratch',
-            partModalData: {
-                title: 'وضعیت بدنه',
-                imageUrl: '/img/door.png',
-                description: 'سقف دارای خط و خش جزیی',
-            },
-        },
-        {
-            partName: 'car_trunk',
-            status: 'scratch',
-            partModalData: {
-                title: 'وضعیت بدنه',
-                imageUrl: '/img/door.png',
-                description: 'صندوق دارای خط و خش جزیی',
-            },
-        },
-        {
-            partName: 'car_caput',
-            status: 'damaged',
-            partModalData: {
-                title: 'وضعیت بدنه',
-                imageUrl: '/img/door.png',
-                description: 'درب موتور دارای رنگ شدگی',
-            },
-        },
-    ];
+    // const damagedParts = [
+    //     {
+    //         partName: 'car_door_left',
+    //         status: 'replaced',
+    //         partModalData: {
+    //             title: 'وضعیت بدنه',
+    //             imageUrl: '/img/door.png',
+    //             description: 'درب جلو سمت راننده تعویض',
+    //         },
+    //     },
+    //     {
+    //         partName: 'car_door_right',
+    //         status: 'scratch',
+    //         partModalData: {
+    //             title: 'وضعیت بدنه',
+    //             imageUrl: '/img/door-right.png',
+    //             description: 'درب جلو سمت شاگرد خط و خش جزیی',
+    //         },
+    //     },
+    //     {
+    //         partName: 'car_tier_front_right',
+    //         status: 'damaged',
+    //         partModalData: {
+    //             title: 'وضعیت بدنه',
+    //             imageUrl: '/img/tire.png',
+    //             description: 'لاستیک ها - 50%',
+    //         },
+    //     },
+    //     {
+    //         partName: 'car_tier_front_left',
+    //         status: 'damaged',
+    //         partModalData: {
+    //             title: 'وضعیت بدنه',
+    //             imageUrl: '/img/tire.png',
+    //             description: 'لاستیک ها - 50%',
+    //         },
+    //     },
+    //     {
+    //         partName: 'car_roof',
+    //         status: 'scratch',
+    //         partModalData: {
+    //             title: 'وضعیت بدنه',
+    //             imageUrl: '/img/door.png',
+    //             description: 'سقف دارای خط و خش جزیی',
+    //         },
+    //     },
+    //     {
+    //         partName: 'car_trunk',
+    //         status: 'scratch',
+    //         partModalData: {
+    //             title: 'وضعیت بدنه',
+    //             imageUrl: '/img/door.png',
+    //             description: 'صندوق دارای خط و خش جزیی',
+    //         },
+    //     },
+    //     {
+    //         partName: 'car_caput',
+    //         status: 'damaged',
+    //         partModalData: {
+    //             title: 'وضعیت بدنه',
+    //             imageUrl: '/img/door.png',
+    //             description: 'درب موتور دارای رنگ شدگی',
+    //         },
+    //     },
+    // ];
     const [isShowBodyStatus, setIsShowBodyStatus] = useState(false);
     const [is3DViewerReady, setIs3DViewerReady] = useState(false);
 
@@ -143,6 +165,31 @@ export default function Home() {
         return () => clearTimeout(loadingTimer);
     }, []);
 
+    // Fetch car data
+    useEffect(() => {
+        const loadCarData = async () => {
+            try {
+                setIsDataLoading(true);
+                // Replace 'car123' with actual car ID from your route or props
+                const data = await fetchCarData('car123');
+                setCarData(data);
+                setError(null);
+            } catch (err) {
+                setError('Failed to load car data. Please try again.');
+            } finally {
+                setIsDataLoading(false);
+            }
+        };
+
+        loadCarData();
+    }, []);
+
+    // Handle loading completion when both initial load and data fetch are done
+    useEffect(() => {
+        if (!isDataLoading && carData) {
+            handleLoadingComplete();
+        }
+    }, [isDataLoading, carData]);
 
     const handleShowBodyStatus = () => {
         isShowBodyStatus ? hideCarBodyStatus() : showCarBodyStatus();
@@ -192,6 +239,27 @@ export default function Home() {
         }, 3000);
     }, []);
 
+    // Error state
+    if (error) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-red-500 text-center">
+                    <h2 className="text-xl font-bold mb-2">Error</h2>
+                    <p>{error}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+                    >
+                        Retry
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // Combined loading state
+    const isLoading = isInitialLoading || isDataLoading;
+
     return (
         <>
             {/* Beautiful Car-Themed Loading Screen */}
@@ -202,38 +270,41 @@ export default function Home() {
             />
 
             {/* Main App Content */}
-            <div
-                style={{
-                    width: '100vw',
-                    height: '100vh',
-                    opacity: isLoading ? 0 : 1,
-                    transition: 'opacity 0.8s ease-in-out',
-                    pointerEvents: isLoading ? 'none' : 'auto'
-                }}
-            >
-                <ScreenRecorder
-                    ref={screenRecorderRef}
-                    onStartRecording={handleStartAnimationWithRecording}
-                    isAnimating={isAnimating}
-                    stopRecordingVal={stopRecordingVal}
-                />
-                <CarInfoBox carDetails={carDetails} />
-                <ResetCameraButton onResetTheCamera={handleShowBodyStatus} />
-                {isShowBodyStatus && (
-                    <div className={'car-body-stat'}>
-                        <Car‌BodyStatBox carBodyStat={carBodyStats} />
-                        <CarBodyStatus status={statusValue.current} />
-                    </div>
-                )}
-                <Reall3dBrowser
-                    ref={reall3dRef}
-                    shouldStartAnimation={shouldStartAnimation}
-                    onAnimationPause={handleAnimationPause}
-                    onAnimationComplete={handleAnimationComplete}
-                    onAnimationStart={() => setIsAnimating(true)}
-                />
-                <FooterLogoSwitch />
-            </div>
+            {carData && (
+                <div
+                    style={{
+                        width: '100vw',
+                        height: '100vh',
+                        opacity: isLoading ? 0 : 1,
+                        transition: 'opacity 0.8s ease-in-out',
+                        pointerEvents: isLoading ? 'none' : 'auto'
+                    }}
+                >
+                    <ScreenRecorder
+                        ref={screenRecorderRef}
+                        onStartRecording={handleStartAnimationWithRecording}
+                        isAnimating={isAnimating}
+                        stopRecordingVal={stopRecordingVal}
+                    />
+                    <CarInfoBox carDetails={carData.carDetails} />
+                    <ResetCameraButton onResetTheCamera={handleShowBodyStatus} />
+                    {isShowBodyStatus && (
+                        <div className={'car-body-stat'}>
+                            <Car‌BodyStatBox carBodyStat={carData.bodyStats} />
+                            <CarBodyStatus status={statusValue.current} />
+                        </div>
+                    )}
+                    <Reall3dBrowser
+                        ref={reall3dRef}
+                        fileUrl={carData.fileUrl}
+                        shouldStartAnimation={shouldStartAnimation}
+                        onAnimationPause={handleAnimationPause}
+                        onAnimationComplete={handleAnimationComplete}
+                        onAnimationStart={() => setIsAnimating(true)}
+                    />
+                    <FooterLogoSwitch />
+                </div>
+            )}
         </>
     );
 }
