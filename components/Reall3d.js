@@ -6,17 +6,30 @@ import { Reall3dViewer } from '@reall3d/reall3dviewer';
 import '@reall3d/reall3dviewer/dist/style.css';
 import { performComplexAnimation } from '../utils/animationUtils.js';
 
-const Reall3d = React.forwardRef(({ shouldStartAnimation, onAnimationComplete, onAnimationStart, onAnimationPause }, ref) => {
+// interface Reall3dBrowserProps {
+//     fileUrl: string;
+//     shouldStartAnimation: boolean;
+//     onAnimationPause: () => void;
+//     onAnimationComplete: () => void;
+//     onAnimationStart: () => void;
+// }
+
+const Reall3d = React.forwardRef(({ shouldStartAnimation, onAnimationComplete, onAnimationStart, onAnimationPause, fileUrl }, ref) => {
     const containerRef = useRef(null);
     const viewerRef = useRef(null);
 
-    // URLs for the two PLY models
-    // const MODEL_B = '/new_3DGS.ply';
-    // const MODEL_A = '/3DGS _full.ply';
-    const MODEL_C = '/last-car-scene.splat';
-    // const MODEL_D = '/new_car.splat';
-    const [modelUrl, setModelUrl] = useState(MODEL_C);
-    const MODELS = [MODEL_C];
+    // Add validation and debugging
+    useEffect(() => {
+        if (!fileUrl) {
+            console.error('fileUrl prop is missing or undefined');
+            return;
+        }
+        console.log('Reall3d component received fileUrl:', fileUrl);
+    }, [fileUrl]);
+
+    // Use fileUrl directly instead of MODEL_C
+    const modelUrl = fileUrl;
+    console.log('Using model URL:', modelUrl);
 
     // Re-initialize viewer whenever modelUrl changes
     useEffect(() => {
@@ -62,12 +75,12 @@ const Reall3d = React.forwardRef(({ shouldStartAnimation, onAnimationComplete, o
         });
 
         console.log('viewer:   ', viewer.splatMesh);
-        
+
         // Debug: Explore viewer properties to find canvas manipulation methods
         console.log('Viewer instance properties:', Object.keys(viewer));
         console.log('Viewer renderer:', viewer.renderer);
         console.log('Viewer canvas:', viewer.renderer?.domElement);
-        
+
         // Try to access the underlying Three.js scene or renderer
         if (viewer.renderer) {
             console.log('Renderer properties:', Object.keys(viewer.renderer));
@@ -86,9 +99,9 @@ const Reall3d = React.forwardRef(({ shouldStartAnimation, onAnimationComplete, o
 
         // Load the selected PLY model
         viewer.addModel(modelUrl).catch(err => console.error('PLY loading error:', err));
-        
+
         // HTML overlays are now handled directly in ScreenRecorder via canvas composition
-        
+
         // Store viewer instance in ref
         viewerRef.current = viewer;
 
@@ -160,11 +173,15 @@ const Reall3d = React.forwardRef(({ shouldStartAnimation, onAnimationComplete, o
     return (
         <>
             {/* Viewer container - overlays now handled by ScreenRecorder */}
-            <div id="viewer1" ref={containerRef} style={{ 
-                width: '100%', 
-                height: '100%', 
-                overflow: 'hidden'
-            }}>
+            <div
+                id="viewer1"
+                ref={containerRef}
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    overflow: 'hidden',
+                }}
+            >
                 {/* Canvas will be created here by Reall3dViewer */}
             </div>
         </>

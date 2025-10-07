@@ -10,6 +10,7 @@ import FooterLogoSwitch from '../components/FooterLogo';
 import CarLoadingScreen from '../components/CarLoadingScreen';
 import useCarLoading from '../hooks/useCarLoading';
 import { CarData } from '../types/car';
+import { getFullFileUrl } from '../utils/url';
 
 const ScreenRecorder = dynamic(() => import('../components/ScreenRecorder'), {
     ssr: false,
@@ -170,10 +171,12 @@ export default function Home() {
         const loadCarData = async () => {
             try {
                 setIsDataLoading(true);
-                // Replace 'car123' with actual car ID from your route or props
-                const data = await fetchCarData('car123');
-                setCarData(data);
-                setError(null);
+                const data = await fetchCarData('52');
+                console.log('---------data from api-------', data);
+                // Fix: Use data directly instead of carData state which hasn't updated yet
+                setCarData(data?.data);
+                // Debug the URL immediately after receiving it
+                console.log('File URL:', getFullFileUrl(data?.data?.fileUrl));
             } catch (err) {
                 setError('Failed to load car data. Please try again.');
             } finally {
@@ -294,14 +297,16 @@ export default function Home() {
                             <CarBodyStatus status={statusValue.current} />
                         </div>
                     )}
-                    <Reall3dBrowser
-                        ref={reall3dRef}
-                        fileUrl={carData.fileUrl}
-                        shouldStartAnimation={shouldStartAnimation}
-                        onAnimationPause={handleAnimationPause}
-                        onAnimationComplete={handleAnimationComplete}
-                        onAnimationStart={() => setIsAnimating(true)}
-                    />
+                    {carData?.fileUrl && (
+                        <Reall3dBrowser
+                            ref={reall3dRef}
+                            fileUrl={getFullFileUrl(carData.fileUrl)}
+                            shouldStartAnimation={shouldStartAnimation}
+                            onAnimationPause={handleAnimationPause}
+                            onAnimationComplete={handleAnimationComplete}
+                            onAnimationStart={() => setIsAnimating(true)}
+                        />
+                    )}
                     <FooterLogoSwitch />
                 </div>
             )}

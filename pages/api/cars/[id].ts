@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { CarData } from '../../../types/car';
+import axios from 'axios';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<CarData | { message: string }>) {
     if (req.method !== 'POST') {
@@ -7,25 +8,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     }
 
     try {
-        const response = await fetch(`${process.env.API_URL}/car/front-end/get-data`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
+        // Force IPv4 by using 127.0.0.1 instead of localhost
+        const baseUrl = process.env.API_URL?.replace('localhost', '127.0.0.1');
+        const apiUrl = `${baseUrl}/car/front-end/get-data`;
+        console.log('Making request to:', apiUrl);
+
+        const response = await axios.post(
+            apiUrl,
+            {
                 id: req.query.id,
-                // Add any additional body parameters if needed
-            }),
-        });
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                // Add axios specific IPv4 configuration
+                proxy: false,
+                family: 4,
+            },
+        );
 
-        if (!response.ok) {
-            throw new Error(`API responded with status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        res.status(200).json(data);
+        res.status(200).json(response.data);
     } catch (error) {
-        console.error('API Error:', error);
+        console.error('Detailed API Error:', {
+            message: error.message,
+            code: error.code,
+            response: error.response?.data,
+            config: error.config,
+        });
         res.status(500).json({ message: 'Internal server error' });
     }
 }

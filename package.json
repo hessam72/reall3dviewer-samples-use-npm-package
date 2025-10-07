@@ -19,6 +19,7 @@
         "@react-three/fiber": "^9.2.0",
         "@reall3d/reall3dviewer": "^0.1.4",
         "@tweenjs/tween.js": "^25.0.0",
+        "axios": "^1.12.2",
         "crypto-js": "^4.2.0",
         "framer-motion": "^12.23.12",
         "html2canvas": "^1.4.1",
