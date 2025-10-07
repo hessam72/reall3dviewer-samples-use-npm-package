@@ -6,14 +6,14 @@ export const useCarId = (): string => {
 
     // Wait for router to be ready
     if (!router.isReady) {
-        return '52'; // fallback while loading
+        return '52';
     }
 
-    // Type check and validate carId
-    if (typeof carId === 'string' && /^\d+$/.test(carId)) {
-        return carId;
+    // Handle 404 for invalid carId
+    if (typeof carId !== 'string' || !/^\d+$/.test(carId)) {
+        router.push('/404');
+        return '52';
     }
 
-    console.warn('Invalid car ID in URL. Using fallback.');
-    return '52';
+    return carId;
 };

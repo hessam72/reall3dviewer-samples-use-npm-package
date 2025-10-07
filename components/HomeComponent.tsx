@@ -1,6 +1,7 @@
 // pages/index.js
 import dynamic from 'next/dynamic';
 import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
 import CarInfoBox from '../components/CarInfoBox';
 import CarBodyStatus from '../components/CarBodyStatus';
 import Car‌BodyStatBox from '../components/CarBodyStatusBox';
@@ -20,8 +21,10 @@ const Reall3dBrowser = dynamic(() => import('../components/Reall3d'), {
     ssr: false,
 });
 
-// Add API service
-const fetchCarData = async (carId: string): Promise<CarData> => {
+// Update fetchCarData to handle 404
+const fetchCarData = async (carId: string, router): Promise<any> => {
+    // const router = useRouter();
+
     try {
         const response = await fetch(`/api/cars/${carId}`, {
             method: 'POST',
@@ -30,15 +33,22 @@ const fetchCarData = async (carId: string): Promise<CarData> => {
             },
         });
 
-        if (!response.ok) throw new Error('Failed to fetch car data');
+        if (response.status === 404) {
+            router.push('/404');
+        }
+
+        if (!response.ok) router.push('/404');
+
         return response.json();
     } catch (error) {
         console.error('Error fetching car data:', error);
-        throw error;
+        router.push('/500');
+
     }
 };
 
 export default function HomeComponent() {
+    const router = useRouter();
     const carId = useCarId();
 
     // State management
@@ -174,10 +184,15 @@ export default function HomeComponent() {
         const loadCarData = async () => {
             try {
                 setIsDataLoading(true);
-                const data = await fetchCarData(carId);
+                const data = await fetchCarData(carId, router);
                 setCarData(data?.data);
             } catch (err) {
-                setError('Failed to load car data. Please try again.');
+                if (err.message === 'CAR_NOT_FOUND') {
+                    router.push('/404');
+                } else {
+                    router.push('/404');
+                    // setError('Failed to load car data. Please try again.');
+                }
             } finally {
                 setIsDataLoading(false);
             }
@@ -186,7 +201,7 @@ export default function HomeComponent() {
         if (carId) {
             loadCarData();
         }
-    }, [carId]); // Re-run when carId changes
+    }, [carId, router]); // Add router to dependencies
 
     // Handle loading completion when both initial load and data fetch are done
     useEffect(() => {
