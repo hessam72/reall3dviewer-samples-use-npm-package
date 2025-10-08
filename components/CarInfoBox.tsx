@@ -41,7 +41,7 @@ const CarInfoBox: React.FC<CarInfoProps> = ({ carDetails }) => {
       >
         <div className="flex justify-between">
           <h2 className="text-2xl font-bold mb-4 text-white" >
-            {carDetails.manufacturer} {carDetails.model}
+            {carDetails.model}
           </h2>
           {/* <p className="text-gray-300 text-xs">۲۳ ساعت پیش در تهران، نارمک جنوبی */}
           {/* </p> */}

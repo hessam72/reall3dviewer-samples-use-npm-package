@@ -303,6 +303,7 @@ export default function HomeComponent() {
                 >
                     <ScreenRecorder
                         ref={screenRecorderRef}
+                        // @ts-ignore
                         onStartRecording={handleStartAnimationWithRecording}
                         isAnimating={isAnimating}
                         stopRecordingVal={stopRecordingVal}
@@ -318,6 +319,7 @@ export default function HomeComponent() {
                     {carData?.fileUrl && (
                         <Reall3dBrowser
                             ref={reall3dRef}
+                            // @ts-ignore
                             fileUrl={getFullFileUrl(carData.fileUrl)}
                             shouldStartAnimation={shouldStartAnimation}
                             onAnimationPause={handleAnimationPause}

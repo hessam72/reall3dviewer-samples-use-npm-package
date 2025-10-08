@@ -1,4 +1,4 @@
-type TranslationKey = 'document_status' | 'three_d_status' | 'status' | 'color';
+type TranslationKey = 'document_status' | 'body_status';
 
 const translations: Record<TranslationKey, Record<string, string>> = {
     document_status: {
