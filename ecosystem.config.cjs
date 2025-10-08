@@ -1,7 +1,7 @@
 module.exports = {
     apps: [
         {
-            name: 'PLY-car-App1',
+            name: 'splat-car-app_car.omidcity',
             script: 'npm',
             args: 'run start',
             env: {

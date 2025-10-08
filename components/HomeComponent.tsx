@@ -64,25 +64,25 @@ export default function HomeComponent() {
     const reall3dRef = useRef<any>(null);
     const screenRecorderRef = useRef<any>(null);
 
-    const carDetails = {
-        manufacturer: 'پژو',
-        model: '207',
-        price: '1,200,000 تومان',
-        year: '1403',
-        color: 'سفید صدفی',
-        fuelType: 'بنزینی',
-        mileage: '۱۵٬۰۰۰ کیلومتر',
-        engineCondition: 'سالم',
-        chassisCondition: 'سالم و پلمپ',
-        bodyCondition: 'سالم و بی‌خط و خش',
-        insuranceValidity: '۶ ماه',
-        gearbox: 'اتوماتیک',
-    };
-    const carBodyStats = [
-        { bodyPart: 'کاپوت', status: 'آسیب دیده' },
-        { bodyPart: 'درب سمت راست', status: 'سالم' },
-        { bodyPart: 'شیشه جلو', status: 'ترک خورده' },
-    ];
+    // const carDetails = {
+    //     manufacturer: 'پژو',
+    //     model: '207',
+    //     price: '1,200,000 تومان',
+    //     year: '1403',
+    //     color: 'سفید صدفی',
+    //     fuelType: 'بنزینی',
+    //     mileage: '۱۵٬۰۰۰ کیلومتر',
+    //     engineCondition: 'سالم',
+    //     chassisCondition: 'سالم و پلمپ',
+    //     bodyCondition: 'سالم و بی‌خط و خش',
+    //     insuranceValidity: '۶ ماه',
+    //     gearbox: 'اتوماتیک',
+    // };
+    // const carBodyStats = [
+    //     { bodyPart: 'کاپوت', status: 'آسیب دیده' },
+    //     { bodyPart: 'درب سمت راست', status: 'سالم' },
+    //     { bodyPart: 'شیشه جلو', status: 'ترک خورده' },
+    // ];
     const statusValue = useRef(100);
 
     // const damagedParts = [
