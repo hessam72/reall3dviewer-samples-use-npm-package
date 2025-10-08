@@ -17,14 +17,14 @@ export default function ErrorPage({
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center px-4">
             <div className="max-w-md w-full text-center space-y-8">
                 {/* Error Icon or Image */}
-                <div className="relative w-32 h-32 mx-auto mb-8">
+                {/* <div className="relative w-32 h-32 mx-auto mb-8">
                     <Image
                         src="/404-car.svg"
                         alt="خطا"
                         fill
                         className="object-contain"
                     />
-                </div>
+                </div> */}
 
                 {/* Error Code */}
                 <div className="text-6xl font-bold text-gray-900 font-vazir">
@@ -42,14 +42,14 @@ export default function ErrorPage({
                 </p>
 
                 {/* Return Button */}
-                <Link
+                {/* <Link
                     href="/"
                     className="inline-block px-6 py-3 mt-8 text-white bg-blue-600 rounded-lg 
                              hover:bg-blue-700 transition-colors duration-200 font-vazir
                              ios-glass-theme"
                 >
                     بازگشت به صفحه اصلی
-                </Link>
+                </Link> */}
             </div>
         </div>
     );

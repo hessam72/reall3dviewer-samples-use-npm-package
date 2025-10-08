@@ -48,8 +48,9 @@ const fetchCarData = async (carId: string, router): Promise<any> => {
 };
 
 export default function HomeComponent() {
-    const { carId, isLoading: isRouteLoading } = useCarId();
     const router = useRouter();
+       const { carId, isLoading: isRouteLoading } = useCarId();
+
 
     // State management
     const { isLoading: isInitialLoading, finishLoading } = useCarLoading(true, 4000);
@@ -64,92 +65,10 @@ export default function HomeComponent() {
     const reall3dRef = useRef<any>(null);
     const screenRecorderRef = useRef<any>(null);
 
-    // const carDetails = {
-    //     manufacturer: 'پژو',
-    //     model: '207',
-    //     price: '1,200,000 تومان',
-    //     year: '1403',
-    //     color: 'سفید صدفی',
-    //     fuelType: 'بنزینی',
-    //     mileage: '۱۵٬۰۰۰ کیلومتر',
-    //     engineCondition: 'سالم',
-    //     chassisCondition: 'سالم و پلمپ',
-    //     bodyCondition: 'سالم و بی‌خط و خش',
-    //     insuranceValidity: '۶ ماه',
-    //     gearbox: 'اتوماتیک',
-    // };
-    // const carBodyStats = [
-    //     { bodyPart: 'کاپوت', status: 'آسیب دیده' },
-    //     { bodyPart: 'درب سمت راست', status: 'سالم' },
-    //     { bodyPart: 'شیشه جلو', status: 'ترک خورده' },
-    // ];
+   
     const statusValue = useRef(100);
 
-    // const damagedParts = [
-    //     {
-    //         partName: 'car_door_left',
-    //         status: 'replaced',
-    //         partModalData: {
-    //             title: 'وضعیت بدنه',
-    //             imageUrl: '/img/door.png',
-    //             description: 'درب جلو سمت راننده تعویض',
-    //         },
-    //     },
-    //     {
-    //         partName: 'car_door_right',
-    //         status: 'scratch',
-    //         partModalData: {
-    //             title: 'وضعیت بدنه',
-    //             imageUrl: '/img/door-right.png',
-    //             description: 'درب جلو سمت شاگرد خط و خش جزیی',
-    //         },
-    //     },
-    //     {
-    //         partName: 'car_tier_front_right',
-    //         status: 'damaged',
-    //         partModalData: {
-    //             title: 'وضعیت بدنه',
-    //             imageUrl: '/img/tire.png',
-    //             description: 'لاستیک ها - 50%',
-    //         },
-    //     },
-    //     {
-    //         partName: 'car_tier_front_left',
-    //         status: 'damaged',
-    //         partModalData: {
-    //             title: 'وضعیت بدنه',
-    //             imageUrl: '/img/tire.png',
-    //             description: 'لاستیک ها - 50%',
-    //         },
-    //     },
-    //     {
-    //         partName: 'car_roof',
-    //         status: 'scratch',
-    //         partModalData: {
-    //             title: 'وضعیت بدنه',
-    //             imageUrl: '/img/door.png',
-    //             description: 'سقف دارای خط و خش جزیی',
-    //         },
-    //     },
-    //     {
-    //         partName: 'car_trunk',
-    //         status: 'scratch',
-    //         partModalData: {
-    //             title: 'وضعیت بدنه',
-    //             imageUrl: '/img/door.png',
-    //             description: 'صندوق دارای خط و خش جزیی',
-    //         },
-    //     },
-    //     {
-    //         partName: 'car_caput',
-    //         status: 'damaged',
-    //         partModalData: {
-    //             title: 'وضعیت بدنه',
-    //             imageUrl: '/img/door.png',
-    //             description: 'درب موتور دارای رنگ شدگی',
-    //         },
-    //     },
-    // ];
+   
     const [isShowBodyStatus, setIsShowBodyStatus] = useState(false);
     const [is3DViewerReady, setIs3DViewerReady] = useState(false);
 
@@ -182,51 +101,108 @@ export default function HomeComponent() {
     // Fetch car data
     useEffect(() => {
         const loadCarData = async () => {
-            if (!carId) return; // Don't fetch if carId is null
-
             try {
                 setIsDataLoading(true);
-                const data = await fetchCarData(carId);
+                const data = await fetchCarData(carId, router);
+                  console.log('car data:  ' , data?.data)
                 setCarData(data?.data);
             } catch (err) {
                 if (err.message === 'CAR_NOT_FOUND') {
                     router.push('/404');
                 } else {
-                    setError('Failed to load car data. Please try again.');
+                    router.push('/404');
+                    // setError('Failed to load car data. Please try again.');
                 }
             } finally {
                 setIsDataLoading(false);
             }
         };
+        
 
-        loadCarData();
-    }, [carId, router]);
+        if (carId) {
+            loadCarData();
+          
+        }
+    }, [carId, router]); // Add router to dependencies
 
-    // Combined loading state
-    const isLoading = isRouteLoading || isInitialLoading || isDataLoading;
+    // Handle loading completion when both initial load and data fetch are done
+    useEffect(() => {
+        if (!isDataLoading && carData) {
+            handleLoadingComplete();
+        }
+    }, [isDataLoading, carData]);
 
-    // Show loading screen while route is not ready
+    const handleShowBodyStatus = () => {
+        isShowBodyStatus ? hideCarBodyStatus() : showCarBodyStatus();
+    };
+
+    // Handle animation start from recording
+    const handleStartAnimationWithRecording = () => {
+        console.log('handleStartAnimationWithRecording called');
+        setShouldStartAnimation(true);
+    };
+
+    // Handle animation pause (stop recording during pause)
+    const handleAnimationPause = () => {
+        console.log('----------pause inside index.ts-------------');
+        console.log('screenRecorderRef.current:', screenRecorderRef.current);
+        console.log('stopRecording method available:', typeof screenRecorderRef.current?.stopRecording);
+
+        setStopRecordingVal(true)
+    };
+
+    // Handle animation completion 
+    const handleAnimationComplete = () => {
+        setIsAnimating(false);
+        setShouldStartAnimation(false);
+    };
+
+    // Test refs after mount
+    useEffect(() => {
+        setTimeout(() => {
+            console.log('Testing refs after 3 seconds...');
+            console.log('screenRecorderRef.current:', screenRecorderRef.current);
+            console.log('Methods on ref:', Object.keys(screenRecorderRef.current || {}));
+            console.log('reall3dRef.current:', reall3dRef.current);
+            if (screenRecorderRef.current?.stopRecording) {
+                console.log('stopRecording method is available via ref');
+                // Test the method
+                console.log('Testing stopRecording method...');
+                try {
+                    // Don't actually call it, just check if it exists
+                    console.log('stopRecording function type:', typeof screenRecorderRef.current.stopRecording);
+                } catch (e) {
+                    console.log('Error testing stopRecording:', e);
+                }
+            } else {
+                console.log('stopRecording method is NOT available via ref');
+            }
+        }, 3000);
+    }, []);
+  // Show loading screen while route is not ready
     if (isRouteLoading) {
         return <CarLoadingScreen isLoading={true} />;
     }
-
-    // Show error state
+    // Error state
     if (error) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-red-500 text-center">
-                    <h2 className="text-xl font-bold mb-2">خطا</h2>
+                    <h2 className="text-xl font-bold mb-2">Error</h2>
                     <p>{error}</p>
                     <button
                         onClick={() => window.location.reload()}
                         className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
                     >
-                        تلاش مجدد
+                        Retry
                     </button>
                 </div>
             </div>
         );
     }
+
+    // Combined loading state
+    const isLoading = isInitialLoading || isDataLoading;
 
     return (
         <>
