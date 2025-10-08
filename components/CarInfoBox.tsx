@@ -1,23 +1,24 @@
 import React, { useState } from "react";
 import { FiInfo, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { translate } from "../utils/translate";
+import { splitPrice } from "../utils/utils";
+import { CarDetails } from "../types/car";
 
 
 
 interface CarInfoProps {
-  carDetails: {
-    manufacturer: string;
-    model: string;
-    price: string;
-    year: string;
-    color: string;
-    fuelType: string;
-    mileage: string;
-    engineCondition: string;
-    chassisCondition: string;
-    bodyCondition: string;
-    insuranceValidity: string;
-    gearbox: string;
-  };
+  carDetails: CarDetails;
+
+
+
+
+
+
+
+
+
+
+
 }
 
 const CarInfoBox: React.FC<CarInfoProps> = ({ carDetails }) => {
@@ -42,8 +43,8 @@ const CarInfoBox: React.FC<CarInfoProps> = ({ carDetails }) => {
           <h2 className="text-2xl font-bold mb-4 text-white" >
             {carDetails.manufacturer} {carDetails.model}
           </h2>
-          <p className="text-gray-300 text-xs">۲۳ ساعت پیش در تهران، نارمک جنوبی
-          </p>
+          {/* <p className="text-gray-300 text-xs">۲۳ ساعت پیش در تهران، نارمک جنوبی */}
+          {/* </p> */}
 
         </div>
         <br />
@@ -52,7 +53,7 @@ const CarInfoBox: React.FC<CarInfoProps> = ({ carDetails }) => {
           <div className="flex justify-center gap-8">
             <div className="flex flex-col justify-center text-center gap-2 b-l">
               <p className="text-gray-50 text-sm">  <span className="font-semibold">مدل (سال تولید)</span> </p>
-              <h4>{carDetails.year}</h4>
+              <h4>{carDetails.build_year}</h4>
             </div>
             <div className="flex flex-col justify-center text-center gap-2 b-l">
               <p className="text-gray-50 text-sm">  <span className="font-semibold">کارکرد</span> </p>
@@ -67,26 +68,19 @@ const CarInfoBox: React.FC<CarInfoProps> = ({ carDetails }) => {
           <br />
 
 
-          <li className="w-full flex justify-between px-4 py-2 b-btn ">
-            <p className="text-gray-50 text-sm ">نوع سوخت:</p> <p>{carDetails.fuelType}</p>
-          </li>
           <li className="w-full flex justify-between px-4 py-2 b-btn">
-            <p className="text-gray-50 text-sm ">وضعیت موتور:</p><p> {carDetails.engineCondition}</p>
+            <p className="text-gray-50 text-sm">وضعیت سند:</p>
+            <p>{translate('document_status', carDetails.document_status)}</p>
           </li>
+         
+         
           <li className="w-full flex justify-between px-4 py-2 b-btn">
-            <p className="text-gray-50 text-sm ">وضعیت شاسی‌ها:</p><p> {carDetails.chassisCondition}</p>
+            <p className="text-gray-50 text-sm ">قیمت پایه:</p><p> {splitPrice(carDetails.price)}&nbsp;تومان</p>
           </li>
-          <li className="w-full flex justify-between px-4 py-2 b-btn">
-            <p className="text-gray-50 text-sm ">وضعیت بدنه:</p><p> {carDetails.bodyCondition}</p>
-          </li>
-          <li className="w-full flex justify-between px-4 py-2 b-btn">
-            <p className="text-gray-50 text-sm ">مهلت بیمهٔ شخص ثالث:</p><p> {carDetails.insuranceValidity}</p>
-          </li>
-          <li className="w-full flex justify-between px-4 py-2 b-btn">
-            <p className="text-gray-50 text-sm ">گیربکس:</p><p> {carDetails.gearbox}</p>
-          </li>
-          <li className="w-full flex justify-between px-4 py-2">
-            <p className="text-gray-50 text-sm ">قیمت پایه:</p><p> {carDetails.price}</p>
+          
+        
+           <li className="w-full flex justify-between px-4 py-2">
+            <p className="text-gray-50 text-sm ">توضیحات:</p><p> {carDetails.description}</p>
           </li>
         </ul>
       </div>

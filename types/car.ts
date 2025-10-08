@@ -1,16 +1,13 @@
 export interface CarDetails {
-    manufacturer: string;
-    model: string;
-    price: string;
-    year: string;
     color: string;
-    fuelType: string;
+    build_year: string;
+    model: string;
+    document_status: string;
+    three_d_status: string;
+    status: string;
     mileage: string;
-    engineCondition: string;
-    chassisCondition: string;
-    bodyCondition: string;
-    insuranceValidity: string;
-    gearbox: string;
+    price: string;
+    description: string;
 }
 
 export interface CarBodyStat {

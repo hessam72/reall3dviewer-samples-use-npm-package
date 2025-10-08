@@ -185,6 +185,7 @@ export default function HomeComponent() {
             try {
                 setIsDataLoading(true);
                 const data = await fetchCarData(carId, router);
+                  console.log('car data:  ' , data?.data)
                 setCarData(data?.data);
             } catch (err) {
                 if (err.message === 'CAR_NOT_FOUND') {
@@ -200,6 +201,7 @@ export default function HomeComponent() {
 
         if (carId) {
             loadCarData();
+          
         }
     }, [carId, router]); // Add router to dependencies
 

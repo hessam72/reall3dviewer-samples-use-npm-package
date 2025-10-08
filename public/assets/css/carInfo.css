@@ -16,7 +16,7 @@
     right: 30px;
     direction: rtl;
     width: 40vw;
-    /* z-index: 9; */
+    z-index: 9990;
 }
 
 .ios-glass-theme li {

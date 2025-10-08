@@ -1,4 +1,5 @@
 import React from "react";
+import { translate } from "../utils/translate";
 
 interface CarBodyStatProps {
   carBodyStat: {
@@ -16,7 +17,7 @@ const Car‌BodyStatBox: React.FC<CarBodyStatProps> = ({ carBodyStat }) => {
           {carBodyStat.map((stat, index) => (
 
             <li key={index} className="w-full flex justify-between px-4 py-2 b-btn  last:border-b-0">
-              <p className="text-gray-300 text-sm ">{stat.bodyPart}</p> <p>{stat.status}</p>
+              <p className="text-gray-300 text-sm ">{stat.bodyPart}</p> <p>{translate('body_status', stat.status)}</p>
             </li>
           ))}
         </ul>
