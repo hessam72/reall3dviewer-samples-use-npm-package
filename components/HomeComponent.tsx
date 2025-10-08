@@ -48,8 +48,8 @@ const fetchCarData = async (carId: string, router): Promise<any> => {
 };
 
 export default function HomeComponent() {
+    const { carId, isLoading: isRouteLoading } = useCarId();
     const router = useRouter();
-    const carId = useCarId();
 
     // State management
     const { isLoading: isInitialLoading, finishLoading } = useCarLoading(true, 4000);
@@ -182,104 +182,51 @@ export default function HomeComponent() {
     // Fetch car data
     useEffect(() => {
         const loadCarData = async () => {
+            if (!carId) return; // Don't fetch if carId is null
+
             try {
                 setIsDataLoading(true);
-                const data = await fetchCarData(carId, router);
-                  console.log('car data:  ' , data?.data)
+                const data = await fetchCarData(carId);
                 setCarData(data?.data);
             } catch (err) {
                 if (err.message === 'CAR_NOT_FOUND') {
                     router.push('/404');
                 } else {
-                    router.push('/404');
-                    // setError('Failed to load car data. Please try again.');
+                    setError('Failed to load car data. Please try again.');
                 }
             } finally {
                 setIsDataLoading(false);
             }
         };
 
-        if (carId) {
-            loadCarData();
-          
-        }
-    }, [carId, router]); // Add router to dependencies
+        loadCarData();
+    }, [carId, router]);
 
-    // Handle loading completion when both initial load and data fetch are done
-    useEffect(() => {
-        if (!isDataLoading && carData) {
-            handleLoadingComplete();
-        }
-    }, [isDataLoading, carData]);
+    // Combined loading state
+    const isLoading = isRouteLoading || isInitialLoading || isDataLoading;
 
-    const handleShowBodyStatus = () => {
-        isShowBodyStatus ? hideCarBodyStatus() : showCarBodyStatus();
-    };
+    // Show loading screen while route is not ready
+    if (isRouteLoading) {
+        return <CarLoadingScreen isLoading={true} />;
+    }
 
-    // Handle animation start from recording
-    const handleStartAnimationWithRecording = () => {
-        console.log('handleStartAnimationWithRecording called');
-        setShouldStartAnimation(true);
-    };
-
-    // Handle animation pause (stop recording during pause)
-    const handleAnimationPause = () => {
-        console.log('----------pause inside index.ts-------------');
-        console.log('screenRecorderRef.current:', screenRecorderRef.current);
-        console.log('stopRecording method available:', typeof screenRecorderRef.current?.stopRecording);
-
-        setStopRecordingVal(true)
-    };
-
-    // Handle animation completion 
-    const handleAnimationComplete = () => {
-        setIsAnimating(false);
-        setShouldStartAnimation(false);
-    };
-
-    // Test refs after mount
-    useEffect(() => {
-        setTimeout(() => {
-            console.log('Testing refs after 3 seconds...');
-            console.log('screenRecorderRef.current:', screenRecorderRef.current);
-            console.log('Methods on ref:', Object.keys(screenRecorderRef.current || {}));
-            console.log('reall3dRef.current:', reall3dRef.current);
-            if (screenRecorderRef.current?.stopRecording) {
-                console.log('stopRecording method is available via ref');
-                // Test the method
-                console.log('Testing stopRecording method...');
-                try {
-                    // Don't actually call it, just check if it exists
-                    console.log('stopRecording function type:', typeof screenRecorderRef.current.stopRecording);
-                } catch (e) {
-                    console.log('Error testing stopRecording:', e);
-                }
-            } else {
-                console.log('stopRecording method is NOT available via ref');
-            }
-        }, 3000);
-    }, []);
-
-    // Error state
+    // Show error state
     if (error) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-red-500 text-center">
-                    <h2 className="text-xl font-bold mb-2">Error</h2>
+                    <h2 className="text-xl font-bold mb-2">خطا</h2>
                     <p>{error}</p>
                     <button
                         onClick={() => window.location.reload()}
                         className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
                     >
-                        Retry
+                        تلاش مجدد
                     </button>
                 </div>
             </div>
         );
     }
-
-    // Combined loading state
-    const isLoading = isInitialLoading || isDataLoading;
 
     return (
         <>
