@@ -22,7 +22,7 @@ const Reall3dBrowser = dynamic(() => import('../components/Reall3d'), {
 });
 
 // Update fetchCarData to handle 404
-const fetchCarData = async (carId: string, router): Promise<any> => {
+const fetchCarData = async (carId: any, router): Promise<any> => {
     // const router = useRouter();
 
     try {
@@ -49,7 +49,7 @@ const fetchCarData = async (carId: string, router): Promise<any> => {
 
 export default function HomeComponent() {
     const router = useRouter();
-       const { carId, isLoading: isRouteLoading } = useCarId();
+    const { carId, isLoading: isRouteLoading } = useCarId();
 
 
     // State management
@@ -65,10 +65,10 @@ export default function HomeComponent() {
     const reall3dRef = useRef<any>(null);
     const screenRecorderRef = useRef<any>(null);
 
-   
+
     const statusValue = useRef(100);
 
-   
+
     const [isShowBodyStatus, setIsShowBodyStatus] = useState(false);
     const [is3DViewerReady, setIs3DViewerReady] = useState(false);
 
@@ -104,7 +104,7 @@ export default function HomeComponent() {
             try {
                 setIsDataLoading(true);
                 const data = await fetchCarData(carId, router);
-                  console.log('car data:  ' , data?.data)
+                console.log('car data:  ', data?.data)
                 setCarData(data?.data);
             } catch (err) {
                 if (err.message === 'CAR_NOT_FOUND') {
@@ -117,11 +117,11 @@ export default function HomeComponent() {
                 setIsDataLoading(false);
             }
         };
-        
+
 
         if (carId) {
             loadCarData();
-          
+
         }
     }, [carId, router]); // Add router to dependencies
 
@@ -179,9 +179,10 @@ export default function HomeComponent() {
             }
         }, 3000);
     }, []);
-  // Show loading screen while route is not ready
+    // Show loading screen while route is not ready
     if (isRouteLoading) {
-        return <CarLoadingScreen isLoading={true} />;
+        return <CarLoadingScreen isLoading={true} onComplete={() => console.log('Loading animation completed')}
+        />;
     }
     // Error state
     if (error) {
