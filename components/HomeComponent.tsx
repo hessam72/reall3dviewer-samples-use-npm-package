@@ -74,10 +74,10 @@ export default function HomeComponent() {
 
     // Fetch car data
     useEffect(() => {
-        const loadCarData = async () => {
+        const loadCarData = async (id: string) => {
             try {
                 setIsDataLoading(true);
-                const data = await fetchCarData(carId);
+                const data = await fetchCarData(id);
                 console.log('car data:  ', data)
                 setCarData(data);
             } catch (err) {
@@ -94,7 +94,7 @@ export default function HomeComponent() {
 
 
         if (carId) {
-            loadCarData();
+            loadCarData(carId);
 
         }
     }, [carId, router]); // Add router to dependencies
