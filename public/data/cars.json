@@ -1,0 +1,61 @@
+{
+    "cars": {
+        "1": {
+            "fileUrl": "/last-car-scene.splat",
+            "carDetails": {
+                "model": "خودروی نمونه ۱",
+                "build_year": "1401",
+                "mileage": "45,000",
+                "color": "سفید",
+                "document_status": "single_page",
+                "price": "1250000000",
+                "description": "بدون رنگ، فنی سالم"
+            },
+            "bodyStats": [
+                { "bodyPart": "کاپوت", "status": "intact" },
+                { "bodyPart": "سقف", "status": "intact" },
+                { "bodyPart": "درب جلو راست", "status": "partial_paint" },
+                { "bodyPart": "گلگیر عقب چپ", "status": "spray_paint" },
+                { "bodyPart": "صندوق عقب", "status": "intact" }
+            ]
+        },
+        "2": {
+            "fileUrl": "/new_car.splat",
+            "carDetails": {
+                "model": "خودروی نمونه ۲",
+                "build_year": "1403",
+                "mileage": "0",
+                "color": "مشکی",
+                "document_status": "active_plate",
+                "price": "2100000000",
+                "description": "صفر کیلومتر"
+            },
+            "bodyStats": [
+                { "bodyPart": "کاپوت", "status": "intact" },
+                { "bodyPart": "سقف", "status": "intact" },
+                { "bodyPart": "درب ها", "status": "intact" },
+                { "bodyPart": "گلگیرها", "status": "intact" },
+                { "bodyPart": "صندوق عقب", "status": "intact" }
+            ]
+        },
+        "3": {
+            "fileUrl": "/old_car_scene.splat",
+            "carDetails": {
+                "model": "خودروی نمونه ۳",
+                "build_year": "1395",
+                "mileage": "180,000",
+                "color": "نقره ای",
+                "document_status": "multi_page",
+                "price": "650000000",
+                "description": "دو لکه رنگ، گلگیر جلو تعویض شده"
+            },
+            "bodyStats": [
+                { "bodyPart": "کاپوت", "status": "paint" },
+                { "bodyPart": "سقف", "status": "intact" },
+                { "bodyPart": "گلگیر جلو راست", "status": "replaced" },
+                { "bodyPart": "درب عقب چپ", "status": "partial_paint" },
+                { "bodyPart": "صندوق عقب", "status": "intact" }
+            ]
+        }
+    }
+}

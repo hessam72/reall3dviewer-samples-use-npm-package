@@ -3,8 +3,9 @@ export interface CarDetails {
     build_year: string;
     model: string;
     document_status: string;
-    three_d_status: string;
-    status: string;
+    // Only sent by the backend API, not shown in the UI
+    three_d_status?: string;
+    status?: string;
     mileage: string;
     price: string;
     description: string;

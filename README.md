@@ -19,6 +19,30 @@ npm run dev
 npm run build
 ```
 
+# Car data
+
+Car pages live at `/<gallery>/<carId>` (e.g. `/gallery/1`). By default the 3D file and specs for each car
+are read from `public/data/cars.json`, keyed by car id, so no backend is needed:
+
+```json
+{
+    "cars": {
+        "1": {
+            "fileUrl": "/last-car-scene.splat",
+            "carDetails": { "model": "...", "build_year": "1401", "mileage": "45,000", "color": "...",
+                            "document_status": "single_page", "price": "1250000000", "description": "..." },
+            "bodyStats": [{ "bodyPart": "کاپوت", "status": "intact" }]
+        }
+    }
+}
+```
+
+- `fileUrl` is a path under `public/` or a full URL.
+- `document_status`: `single_page` | `multi_page` | `active_plate`
+- `bodyStats[].status`: `paint` | `partial_paint` | `replaced` | `spray_paint` | `intact`
+
+To go back to the backend API, set `NEXT_PUBLIC_DATA_SOURCE=api` in `.env` and rebuild.
+
 # Links
 
 - https://github.com/reall3d-com/Reall3dViewer

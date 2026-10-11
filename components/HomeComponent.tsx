@@ -11,7 +11,7 @@ import FooterLogoSwitch from '../components/FooterLogo';
 import CarLoadingScreen from '../components/CarLoadingScreen';
 import useCarLoading from '../hooks/useCarLoading';
 import { CarData } from '../types/car';
-import { getFullFileUrl } from '../utils/url';
+import { fetchCarData, CarNotFoundError } from '../utils/carData';
 import { useCarId } from '../utils/route';
 
 const ScreenRecorder = dynamic(() => import('../components/ScreenRecorder'), {
@@ -20,32 +20,6 @@ const ScreenRecorder = dynamic(() => import('../components/ScreenRecorder'), {
 const Reall3dBrowser = dynamic(() => import('../components/Reall3d'), {
     ssr: false,
 });
-
-// Update fetchCarData to handle 404
-const fetchCarData = async (carId: any, router): Promise<any> => {
-    // const router = useRouter();
-
-    try {
-        const response = await fetch(`/api/cars/${carId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (response.status === 404) {
-            router.push('/404');
-        }
-
-        if (!response.ok) router.push('/404');
-
-        return response.json();
-    } catch (error) {
-        console.error('Error fetching car data:', error);
-        router.push('/500');
-
-    }
-};
 
 export default function HomeComponent() {
     const router = useRouter();
@@ -103,15 +77,15 @@ export default function HomeComponent() {
         const loadCarData = async () => {
             try {
                 setIsDataLoading(true);
-                const data = await fetchCarData(carId, router);
-                console.log('car data:  ', data?.data)
-                setCarData(data?.data);
+                const data = await fetchCarData(carId);
+                console.log('car data:  ', data)
+                setCarData(data);
             } catch (err) {
-                if (err.message === 'CAR_NOT_FOUND') {
+                if (err instanceof CarNotFoundError) {
                     router.push('/404');
                 } else {
-                    router.push('/404');
-                    // setError('Failed to load car data. Please try again.');
+                    console.error('Error loading car data:', err);
+                    router.push('/500');
                 }
             } finally {
                 setIsDataLoading(false);
@@ -244,7 +218,7 @@ export default function HomeComponent() {
                         <Reall3dBrowser
                             ref={reall3dRef}
                             // @ts-ignore
-                            fileUrl={getFullFileUrl(carData.fileUrl)}
+                            fileUrl={carData.fileUrl}
                             shouldStartAnimation={shouldStartAnimation}
                             onAnimationPause={handleAnimationPause}
                             onAnimationComplete={handleAnimationComplete}
