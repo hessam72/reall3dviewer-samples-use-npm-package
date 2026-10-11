@@ -6,24 +6,6 @@ import { Reall3dViewer } from '@reall3d/reall3dviewer';
 import '@reall3d/reall3dviewer/dist/style.css';
 import { performComplexAnimation } from '../utils/animationUtils.js';
 
-// On every addModel the viewer POSTs the watermark text to reall3d.com to turn it into splats,
-// even when there is no watermark. Answer that request locally with "no result" so the app makes
-// no external calls; the library treats this the same as a failed request (no text watermark).
-const WATERMARK_API_URL = 'https://reall3d.com/gsfont/api/getGaussianText';
-if (typeof window !== 'undefined' && !window.__reall3dWatermarkApiDisabled) {
-    const originalFetch = window.fetch.bind(window);
-    window.fetch = (input, init) => {
-        const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-        if (url.startsWith(WATERMARK_API_URL)) {
-            return Promise.resolve(
-                new Response('{"success":false}', { headers: { 'Content-Type': 'application/json' } }),
-            );
-        }
-        return originalFetch(input, init);
-    };
-    window.__reall3dWatermarkApiDisabled = true;
-}
-
 // interface Reall3dBrowserProps {
 //     fileUrl: string;
 //     shouldStartAnimation: boolean;
