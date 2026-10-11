@@ -6,6 +6,47 @@ import { Reall3dViewer } from '@reall3d/reall3dviewer';
 import '@reall3d/reall3dviewer/dist/style.css';
 import { performComplexAnimation } from '../utils/animationUtils.js';
 
+// Patches window.fetch for two requests the viewer library makes:
+//
+// 1. On every addModel it POSTs the watermark text to reall3d.com to turn it into splats, even when
+//    there is no watermark. Answer that locally with "no result" so the app makes no external calls;
+//    the library treats this the same as a failed request (no text watermark).
+//
+// 2. It sizes the model from the Content-Length header (.splat: point count = length / 32). When the
+//    server gzips or chunks the file there is no usable length, and the model silently never shows
+//    (console warning "data empty"). In that case read the whole file first and hand the viewer a
+//    response with the real length. Responses that already have a length still stream as before.
+const WATERMARK_API_URL = 'https://reall3d.com/gsfont/api/getGaussianText';
+const MODEL_FILE_PATTERN = /\.(splat|ply|spx|spz)([?#]|$)/i;
+
+const withContentLength = async (response) => {
+    const hasUsableLength = response.headers.get('content-length') && !response.headers.get('content-encoding');
+    if (!response.ok || hasUsableLength) return response;
+
+    const body = await response.arrayBuffer();
+    const headers = new Headers(response.headers);
+    headers.delete('content-encoding');
+    headers.set('content-length', String(body.byteLength));
+    return new Response(body, { status: response.status, statusText: response.statusText, headers });
+};
+
+if (typeof window !== 'undefined' && !window.__reall3dFetchPatched) {
+    const originalFetch = window.fetch.bind(window);
+    window.fetch = (input, init) => {
+        const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+        if (url.startsWith(WATERMARK_API_URL)) {
+            return Promise.resolve(
+                new Response('{"success":false}', { headers: { 'Content-Type': 'application/json' } }),
+            );
+        }
+        if (MODEL_FILE_PATTERN.test(url)) {
+            return originalFetch(input, init).then(withContentLength);
+        }
+        return originalFetch(input, init);
+    };
+    window.__reall3dFetchPatched = true;
+}
+
 // interface Reall3dBrowserProps {
 //     fileUrl: string;
 //     shouldStartAnimation: boolean;
